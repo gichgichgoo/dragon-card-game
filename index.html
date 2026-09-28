@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#15131b">
+  <title>ドラゴン・デュエル SOLO</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div class="header"><div class="brand"><h1>🐉 ドラゴン・デュエル</h1></div><div class="headerBtns"><button id="logBtn" class="smallBtn">ログ</button><button id="rulesBtn" class="smallBtn">ルール</button><button id="restartBtn" class="smallBtn">↻</button></div></div>
+  <div id="turnBanner" class="turn">準備中…</div>
+  <section class="zone cpuZone"><div class="status"><div class="who">🤖 CPU</div><div class="stats"><span class="lifeMeter" id="cpuHearts" aria-label="CPU ライフ4">
+  <span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span>
+</span><span class="counterMeter" id="cpuCounters" aria-label="CPU 打ち消し2">
+  <span class="counterBook bookOn">📘</span><span class="counterBook bookOn">📘</span><span class="counterBook bookOff">📘</span>
+</span><span class="stat">🖐 <b id="cpuHandCount">5</b></span><span class="stat deck">🂠 <b id="cpuDeckCount">11</b></span></div></div><div class="label">CPUの手札</div><div id="cpuHand" class="cpuHand"></div><div class="label">CPUの場</div><div id="cpuField" class="field"></div></section>
+  <section class="zone playerZone"><div class="status"><div class="who">🧙 あなた</div><div class="stats"><span class="lifeMeter" id="playerHearts" aria-label="あなた ライフ4">
+  <span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span>
+</span><span class="counterMeter" id="playerCounters" aria-label="あなた 打ち消し2">
+  <span class="counterBook bookOn">📘</span><span class="counterBook bookOn">📘</span><span class="counterBook bookOff">📘</span>
+</span><span class="stat deck">🂠 <b id="playerDeckCount">11</b></span></div></div><div class="label">あなたの場</div><div id="playerField" class="field"></div><div class="label">あなたの手札</div><div id="playerHand" class="hand"></div></section>
+  <section class="zone public">
+  <div>
+    <b style="font-size:13px">公開捨て札</b>
+    <div class="subinfo">タップすると内容を確認できます。</div>
+    <div class="discardButtons">
+      <button id="playerDiscardBtn" class="discardButton" type="button">あなた <span id="playerDiscardCount">0</span>枚</button>
+      <button id="cpuDiscardBtn" class="discardButton" type="button">CPU <span id="cpuDiscardCount">0</span>枚</button>
+    </div>
+  </div>
+  <div class="stats"><span class="stat">Turn <b id="turnNo">1</b></span></div>
+</section>
+  
+</div>
+<div class="bottomBar"><button id="playBtn" class="primary" disabled>カードを使う</button><button id="endBtn" class="end">ターン終了</button><div id="hint" class="bottomHint"></div></div>
+
+
+<div id="setupModal" class="modal setupModal">
+  <div class="modalBox setupBox">
+    <div class="setupHead">
+      <div>
+        <h2>デッキ構築</h2>
+        <p class="subinfo">16枚固定。魔法は同名を複数枚選べます。</p>
+      </div>
+      <div class="setupCount"><span id="setupSelectedCount">2</span>/16</div>
+    </div>
+    <div class="fixedBuild">⭕ 竜の召喚陣 ×2 <span>固定</span></div>
+    <div class="difficultyRow">
+      <div class="difficultyLabel">CPU難易度</div>
+      <div class="difficultyButtons">
+        <button id="diffEasy" class="difficultyBtn" type="button" data-diff="easy">EASY</button>
+        <button id="diffNormal" class="difficultyBtn selected" type="button" data-diff="normal">NORMAL</button>
+        <button id="diffHard" class="difficultyBtn" type="button" data-diff="hard">HARD</button>
+      </div>
+    </div>
+    <div class="setupBody">
+      <section class="setupSection">
+        <div class="setupCategoryHead"><b>🐉 ドラゴン</b><span id="dragonBuildCount">0/3</span></div>
+        <div class="setupNote">3種類を各1枚。ドラゴンは同名重複なし。</div>
+        <div id="dragonSetupGrid" class="dragonSetupGrid"></div>
+      </section>
+      <section class="setupSection">
+        <div class="setupCategoryHead"><b>基本魔法</b><span id="basicBuildCount">0/5</span></div>
+        <div id="basicSetupGrid" class="spellSetupGrid"></div>
+      </section>
+      <section class="setupSection">
+        <div class="setupCategoryHead"><b>戦術魔法</b><span id="tacticalBuildCount">0/4</span></div>
+        <div id="tacticalSetupGrid" class="spellSetupGrid"></div>
+      </section>
+      <section class="setupSection">
+        <div class="setupCategoryHead"><b>強力魔法</b><span id="powerfulBuildCount">0/2</span></div>
+        <div id="powerfulSetupGrid" class="spellSetupGrid"></div>
+      </section>
+    </div>
+    <div id="setupHint" class="setupHint">各カテゴリーの必要枚数を選んでください。</div>
+    <div class="modalActions"><button id="startGameBtn" class="primary" type="button" disabled>このデッキで開始</button></div>
+  </div>
+</div>
+<div id="counterFlash" class="counterFlash"><span id="counterFlashMain">打ち消し！</span><span id="counterFlashSub" class="sub"></span></div>
+
+<div id="logModal" class="modal">
+  <div class="modalBox logModalBox">
+    <div class="status"><h2 style="margin:0">戦況ログ</h2><span class="note">新しい順</span></div>
+    <div id="log" class="log"></div>
+    <div class="modalActions"><button id="closeLog" class="primary" type="button">閉じる</button></div>
+  </div>
+</div>
+<div id="rulesModal" class="modal"><div class="modalBox">
+<h2>正式ルール案 v2.6</h2>
+<div class="ruleKey"><b>勝利条件：</b> 相手のライフ4を先に0にする。</div>
+<ol>
+<li>開始前に16枚のデッキを構築する。内訳は<b>ドラゴン3枚＋竜の召喚陣2枚固定＋基本魔法5枚＋戦術魔法4枚＋強力魔法2枚</b>。</li>
+<li>ドラゴンは3種類を各1枚。魔法は<b>同名を複数枚選択可能</b>。CPUはプレイヤーと別構成で、選んだ難易度に応じた<b>専用デッキをランダムに使用</b>する。</li>
+<li>各自5枚で開始し、<b>先攻後攻はランダム</b>。先攻1ターン目だけドローなし・使用1枚まで。後攻は最初の自分ターンから1枚引き、通常2枚まで使用する。<b>連唱でも先攻1ターン目の1枚制限は増やせない。</b></li>
+<li>ドラゴン召喚は使用1回。通常は召喚陣1枚を消費するが、<b>小さな竜は召喚陣不要</b>。</li>
+<li>ドラゴンは場に残り、自分のターン開始時に能力を使う。「竜払い」は相手の場から対象を選べる。</li>
+<li>📘1つで相手のカードを打ち消せる。打ち消された側は📘2つで打ち消し返し可能。打ち消し返し返しは不可。</li>
+<li>ターン終了時に手札が6枚以上なら5枚まで捨てる。片方の山札だけ0ならその側は以後ドローできない。両方0になったターン終了時に残りライフで決着。</li>
+</ol>
+<h3>基本魔法｜5枚</h3>
+<div class="grid2">
+<div class="ruleKey"><b>✨ 火花</b><br><span class="note">相手1ダメージ</span></div>
+<div class="ruleKey"><b>💧 治癒の雫</b><br><span class="note">1回復</span></div>
+<div class="ruleKey"><b>🔮 魔力研究</b><br><span class="note">2ドロー</span></div>
+<div class="ruleKey"><b>🌪️ 風さらい</b><br><span class="note">ランダム手札1枚破棄</span></div>
+<div class="ruleKey"><b>🛡️ 賢者の結界</b><br><span class="note">打消+1</span></div>
+<div class="ruleKey"><b>♻️ 魔力循環</b><br><span class="note">2ドロー1捨て</span></div>
+</div>
+<h3>戦術魔法｜4枚</h3>
+<div class="grid2">
+<div class="ruleKey"><b>🧵 記憶の糸</b><br><span class="note">自分の捨て札から1枚回収</span></div>
+<div class="ruleKey"><b>🌟 星読み</b><br><span class="note">山札から好きな1枚を手札へ</span></div>
+<div class="ruleKey"><b>🎶 連唱</b><br><span class="note">このターン使用上限+2</span></div>
+<div class="ruleKey"><b>⚔️ 竜払い</b><br><span class="note">相手ドラゴン1体を選び破棄</span></div>
+<div class="ruleKey"><b>🌊 知識の奔流</b><br><span class="note">3ドロー2捨て</span></div>
+<div class="ruleKey"><b>🌫️ 封魔の霧</b><br><span class="note">相手の次ターン使用上限-1</span></div>
+</div>
+<h3>強力魔法｜2枚</h3>
+<div class="grid2">
+<div class="ruleKey"><b>🔥 業火</b><br><span class="note">相手2・自分1ダメージ</span></div>
+<div class="ruleKey"><b>🌀 竜魂還し</b><br><span class="note">両者どちらかの捨て札からドラゴンを自分の場へ復活</span></div>
+<div class="ruleKey"><b>💥 竜の残響</b><br><span class="note">自分のドラゴン1体を捨てて相手3ダメージ</span></div>
+</div>
+<p class="note">※ v2.6：先攻後攻をランダム化。先攻1ターン目はドローなし・使用1枚を厳格適用。</p>
+<div class="modalActions"><button id="closeRules" class="primary">ゲームに戻る</button></div>
+</div></div>
+
+<div id="counterModal" class="modal"><div class="modalBox"><div class="bigIcon" id="counterIcon">🔥</div><h2 id="counterTitle">CPUがカードを使用</h2><p id="counterDesc"></p><div class="ruleKey" id="counterRule">📘 打消を1つ使うと、このカードを無効化できます。</div><div class="modalActions"><button id="passCounter">通す</button><button id="useCounter" class="primary">打ち消す</button></div></div></div>
+
+<div id="discardModal" class="modal">
+  <div class="modalBox">
+    <h2 id="discardTitle">捨て札</h2>
+    <p class="subinfo">新しい捨て札から順に表示します。</p>
+    <div id="discardGrid" class="discardGrid"></div>
+    <div class="modalActions"><button id="closeDiscard" class="primary" type="button">閉じる</button></div>
+  </div>
+</div>
+<div id="selectModal" class="modal"><div class="modalBox"><h2 id="selectTitle">カードを選択</h2><p id="selectDesc"></p><div id="selectCards" class="hand" style="max-height:58vh;overflow:auto;flex-wrap:wrap"></div></div></div>
+<div id="resultModal" class="modal"><div class="modalBox"><div id="resultIcon" class="bigIcon">🏆</div><h2 id="resultTitle">勝利！</h2><p id="resultText"></p><div class="modalActions"><button id="againBtn" class="primary">もう一戦</button></div></div></div>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
