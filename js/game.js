@@ -383,6 +383,15 @@ export function createGame(ui, { random = Math.random } = {}) {
     const openingCpu = state.opening && state.starter === "cpu";
     state.turn = "cpu";
     expireSummonGuard("cpu");
+
+    const penalty = openingCpu ? 0 : (state.cpu.limitPenalty || 0);
+    if (!openingCpu) state.cpu.limitPenalty = 0;
+    let limit = openingCpu ? 1 : Math.max(0, 2 - penalty);
+    let used = 0;
+    state.cpuBonus = 0;
+    state.cpuPlayLimit = limit;
+    state.cpuPlaysUsed = used;
+
     ui.render(state);
     await wait(220);
     if (!state || state.epoch !== epoch || state.over) return;
@@ -396,11 +405,6 @@ export function createGame(ui, { random = Math.random } = {}) {
       if (!state || state.epoch !== epoch || state.over) return;
     }
 
-    const penalty = openingCpu ? 0 : (state.cpu.limitPenalty || 0);
-    if (!openingCpu) state.cpu.limitPenalty = 0;
-    let limit = openingCpu ? 1 : Math.max(0, 2 - penalty);
-    let used = 0;
-    state.cpuBonus = 0;
     if (penalty) log(`\u5c01\u9b54\u306e\u9727\u306b\u3088\u308a\u3001CPU\u306e\u4f7f\u7528\u4e0a\u9650\u306f${limit}\u679a\u3067\u3059\u3002`, "cpu");
 
     while (used < limit && state.cpu.hand.length && !state.over) {
@@ -417,6 +421,9 @@ export function createGame(ui, { random = Math.random } = {}) {
         state.cpuBonus = 0;
       }
       used++;
+      state.cpuPlayLimit = limit;
+      state.cpuPlaysUsed = used;
+      ui.render(state);
       await wait(220);
       if (!state || state.epoch !== epoch || state.over) return;
     }
@@ -439,6 +446,8 @@ export function createGame(ui, { random = Math.random } = {}) {
     state.turn = "player";
     expireSummonGuard("player");
     state.playsUsed = 0;
+    state.cpuPlayLimit = 0;
+    state.cpuPlaysUsed = 0;
     const penalty = state.player.limitPenalty || 0;
     state.player.limitPenalty = 0;
     state.playLimit = Math.max(0, 2 - penalty);
@@ -533,6 +542,7 @@ export function createGame(ui, { random = Math.random } = {}) {
       player: createSideState(), cpu: createSideState(),
       starter, opening: true, turn: starter,
       selected: null, playsUsed: 0, playLimit: starter === "player" ? 1 : 2,
+      cpuPlayLimit: starter === "cpu" ? 1 : 0, cpuPlaysUsed: 0,
       first: starter === "player", over: false, turnNo: 1, cpuBonus: 0, discardMode: false,
     };
 
