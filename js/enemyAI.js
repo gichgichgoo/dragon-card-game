@@ -1,4 +1,4 @@
-import { CARDS, isDragon } from "./cards.js";
+import { CARDS, isDragon } from "./cards.js?v=20260929-6";
 
 // v2.6の挙動を維持するため、現時点では難易度間で思考係数は共通です。
 // 将来ここだけ変えれば、デッキ構成とは独立してAIの賢さを調整できます。
