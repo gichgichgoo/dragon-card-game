@@ -32,6 +32,7 @@ export function createEnemyAI({
   getState,
   canSummon,
   reviveEntries,
+  getPlayability,
   random = Math.random,
 }) {
   function profile() {
