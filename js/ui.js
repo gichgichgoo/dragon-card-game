@@ -9,6 +9,7 @@ export function createUI() {
     dragonBuildCount: $("dragonBuildCount"), summonBuildCount: $("summonBuildCount"), basicBuildCount: $("basicBuildCount"), tacticalBuildCount: $("tacticalBuildCount"), powerfulBuildCount: $("powerfulBuildCount"),
     summonGrid: $("summonSetupGrid"), basicGrid: $("basicSetupGrid"), tacticalGrid: $("tacticalSetupGrid"), powerfulGrid: $("powerfulSetupGrid"),
     pHearts: $("playerHearts"), cHearts: $("cpuHearts"), pCounters: $("playerCounters"), cCounters: $("cpuCounters"),
+    pStarter: $("playerStarter"), cStarter: $("cpuStarter"), pCounterBack: $("playerCounterBack"), cCounterBack: $("cpuCounterBack"), pAction: $("playerActionMeter"), cAction: $("cpuActionMeter"),
     cHandN: $("cpuHandCount"), pDeckN: $("playerDeckCount"), cDeckN: $("cpuDeckCount"), turnNo: $("turnNo"),
     pHand: $("playerHand"), cHand: $("cpuHand"), pField: $("playerField"), cField: $("cpuField"),
     pDiscardBtn: $("playerDiscardBtn"), cDiscardBtn: $("cpuDiscardBtn"), pDiscardCount: $("playerDiscardCount"), cDiscardCount: $("cpuDiscardCount"),
@@ -50,7 +51,8 @@ export function createUI() {
       ? `<div class="cardArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div><div class="cardArtShade"></div>`
       : "";
 
-    el.innerHTML = `${art}<div class="cardInfo"><div class="icon">${card.icon}</div><div class="cardText"><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div></div></div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
+    const icon = hasArt ? "" : `<div class="icon">${card.icon}</div>`;
+    el.innerHTML = `${art}<div class="cardInfo">${icon}<div class="cardText"><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div></div></div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
     if (zone === "hand") el.onclick = () => handlers.selectCard?.(index);
     return el;
   }
@@ -89,12 +91,38 @@ export function createUI() {
 
   function renderCounters(state, who) {
     const meter = who === "player" ? refs.pCounters : refs.cCounters;
+    const back = who === "player" ? refs.pCounterBack : refs.cCounterBack;
     const count = Math.max(0, Math.min(3, state[who].counters));
-    meter.setAttribute("aria-label", `${who === "player" ? "\u3042\u306a\u305f" : "CPU"} \u6253\u3061\u6d88\u3057${count}`);
+    meter.setAttribute("aria-label", `${who === "player" ? "あなた" : "CPU"} 打ち消し${count}`);
     [...meter.querySelectorAll(".counterBook")].forEach((book, index) => {
       book.classList.toggle("bookOn", index < count);
       book.classList.toggle("bookOff", index >= count);
     });
+    back.classList.toggle("active", count >= 2);
+    back.setAttribute("aria-label", count >= 2 ? "打ち消し返し可能" : "打ち消し返し不可");
+    back.title = count >= 2 ? "打ち消し返し可能（📘2）" : "打ち消し返しには📘2必要";
+  }
+
+  function renderTurnIndicators(state) {
+    refs.pStarter.classList.toggle("active", state.starter === "player");
+    refs.cStarter.classList.toggle("active", state.starter === "cpu");
+
+    const playerLimit = Math.max(0, state.playLimit ?? 0);
+    const playerUsed = Math.max(0, state.playsUsed ?? 0);
+    const cpuLimit = Math.max(0, state.cpuPlayLimit ?? 0);
+    const cpuUsed = Math.max(0, state.cpuPlaysUsed ?? 0);
+
+    const setAction = (el, active, used, limit) => {
+      const remaining = Math.max(0, limit - used);
+      el.textContent = active ? `🃏${remaining}/${limit}` : "🃏—";
+      el.classList.toggle("active", active);
+      el.title = active
+        ? `このターンあと${remaining}枚使用可能（上限${limit}枚）`
+        : "現在のターンではありません";
+    };
+
+    setAction(refs.pAction, !state.over && state.turn === "player", playerUsed, playerLimit);
+    setAction(refs.cAction, !state.over && state.turn === "cpu", cpuUsed, cpuLimit);
   }
 
   function canSummonFromUi(state, who, id) {
@@ -107,6 +135,7 @@ export function createUI() {
     renderHearts(state, "cpu");
     renderCounters(state, "player");
     renderCounters(state, "cpu");
+    renderTurnIndicators(state);
     refs.cHandN.textContent = state.cpu.hand.length;
     refs.pDeckN.textContent = state.playerDeck.length;
     refs.cDeckN.textContent = state.cpuDeck.length;
@@ -143,13 +172,14 @@ export function createUI() {
     refs.pDiscardCount.textContent = state.playerDiscard.length;
     refs.cDiscardCount.textContent = state.cpuDiscard.length;
     refs.banner.className = `turn ${state.turn === "player" ? "you" : "cpu"}`;
+    const activeUsed = state.turn === "player" ? state.playsUsed : state.cpuPlaysUsed;
+    const activeLimit = state.turn === "player" ? state.playLimit : state.cpuPlayLimit;
+    const activeRemaining = Math.max(0, (activeLimit ?? 0) - (activeUsed ?? 0));
     refs.banner.textContent = state.over
-      ? "\u30b2\u30fc\u30e0\u7d42\u4e86"
+      ? "ゲーム終了"
       : state.turn === "player"
-        ? (state.opening && state.starter === "player"
-          ? `\u3042\u306a\u305f\u306e\u30bf\u30fc\u30f3\u3010\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u3011\uff5c\u4f7f\u7528 ${state.playsUsed}/${state.playLimit}`
-          : `\u3042\u306a\u305f\u306e\u30bf\u30fc\u30f3\uff5c\u4f7f\u7528 ${state.playsUsed}/${state.playLimit}`)
-        : (state.opening && state.starter === "cpu" ? "CPU\u306e\u30bf\u30fc\u30f3\u3010\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u3011" : "CPU\u306e\u30bf\u30fc\u30f3");
+        ? `🧙 あなたのターン${state.opening && state.starter === "player" ? " 🥇先攻1ターン目" : ""}　🃏${activeRemaining}/${activeLimit}`
+        : `🤖 CPUのターン${state.opening && state.starter === "cpu" ? " 🥇先攻1ターン目" : ""}　🃏${activeRemaining}/${activeLimit}`;
 
     const valid = state.selected !== null && state.player.hand[state.selected];
     const selectedId = valid ? state.player.hand[state.selected] : null;
@@ -198,7 +228,8 @@ export function createUI() {
         const card = CARDS[id];
         const item = document.createElement("div");
         item.className = "discardItem";
-        item.innerHTML = `<div class="diIcon">${card.icon}</div><div><div class="diName">${card.name}</div><div class="diType">${cardTypeLabel(id)}</div></div>`;
+        const visual = card.image ? `<div class="diThumb"><img src="${card.image}" alt="" style="object-position:${card.artPosition ?? "50% 50%"}"></div>` : `<div class="diIcon">${card.icon}</div>`;
+        item.innerHTML = `${visual}<div><div class="diName">${card.name}</div><div class="diType">${cardTypeLabel(id)}</div></div>`;
         refs.discardGrid.appendChild(item);
       });
     }
@@ -259,7 +290,14 @@ export function createUI() {
     const card = CARDS[id];
     const ghost = document.createElement("div");
     ghost.className = `motionCard face ${card.type === "dragon" ? "dragon" : ""}`;
-    ghost.innerHTML = `<div class="mIcon">${card.icon}</div><div class="mName">${card.name}</div><div class="mText">${card.desc}</div>`;
+    if (card.image) {
+      ghost.classList.add("hasArt");
+      ghost.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.82)),url("${card.image}")`;
+      ghost.style.backgroundPosition = card.artPosition ?? "50% 50%";
+      ghost.innerHTML = `<div class="mName">${card.name}</div><div class="mText">${card.desc}</div>`;
+    } else {
+      ghost.innerHTML = `<div class="mIcon">${card.icon}</div><div class="mName">${card.name}</div><div class="mText">${card.desc}</div>`;
+    }
     document.body.appendChild(ghost);
     const sx = a.left + a.width / 2 - 56, sy = a.top + a.height / 2 - 66;
     const tx = b.left + b.width / 2 - 56, ty = b.top + b.height / 2 - 66;
@@ -312,7 +350,7 @@ export function createUI() {
     const summonCard = summonId ? CARDS[summonId] : null;
     refs.counterFlash.classList.remove("show", "back", "play", "dragon", "summon");
     void refs.counterFlash.offsetWidth;
-    refs.counterFlashMain.textContent = `${card.icon} ${card.name}`;
+    refs.counterFlashMain.textContent = card.image ? card.name : `${card.icon} ${card.name}`;
     refs.counterFlashSub.textContent = isSummon && summonCard
       ? `${summonCard.icon} ${summonCard.name}｜${summonCard.desc}`
       : `${isSummon ? "召喚｜" : "CPU｜"}${card.desc}`;
@@ -328,7 +366,13 @@ export function createUI() {
     if (state.player.counters <= 0) return Promise.resolve(false);
     const card = CARDS[id];
     const summonCard = summonId ? CARDS[summonId] : null;
-    refs.counterIcon.textContent = card.icon;
+    if (card.image) {
+      refs.counterIcon.classList.add("cardArtIcon");
+      refs.counterIcon.innerHTML = `<img src="${card.image}" alt="" style="object-position:${card.artPosition ?? "50% 50%"}">`;
+    } else {
+      refs.counterIcon.classList.remove("cardArtIcon");
+      refs.counterIcon.textContent = card.icon;
+    }
     refs.counterTitle.textContent = summonCard
       ? `CPUが「${summonCard.name}」で「${card.name}」を召喚`
       : `CPUが「${card.name}」を使用`;
@@ -346,7 +390,8 @@ export function createUI() {
     const state = stateProvider();
     if (state.player.counters < 2) return Promise.resolve(false);
     const card = CARDS[id];
-    refs.counterIcon.textContent = "\ud83d\udcd8";
+    refs.counterIcon.classList.remove("cardArtIcon");
+    refs.counterIcon.textContent = "↩️";
     refs.counterTitle.textContent = "CPU\u304c\u6253\u3061\u6d88\u3057\u307e\u3057\u305f";
     refs.counterDesc.textContent = `\u300c${card.name}\u300d\u3092\u901a\u3059\u305f\u3081\u3001\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3092\u3057\u307e\u3059\u304b\uff1f`;
     refs.counterRule.textContent = "\ud83d\udcd8\u30922\u3064\u4f7f\u3046\u3068CPU\u306e\u6253\u3061\u6d88\u3057\u3092\u7121\u52b9\u5316\u3067\u304d\u307e\u3059\u3002\u3053\u308c\u4ee5\u4e0a\u306e\u6253\u3061\u6d88\u3057\u8fd4\u3057\u306f\u3067\u304d\u307e\u305b\u3093\u3002";
@@ -478,8 +523,12 @@ export function createUI() {
       button.type = "button";
       button.className = "dragonPick";
       const cost = card.freeSummon ? "召喚カード不要" : "召喚カード1枚";
-      const art = card.image ? `<div class="dpArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div>` : "";
-      button.innerHTML = `${art}<div class="dpTop"><span class="dpIcon">${card.icon}</span><span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div>`;
+      const art = card.image
+        ? `<div class="dpBg"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div><div class="dpShade"></div>`
+        : "";
+      const icon = card.image ? "" : `<span class="dpIcon">${card.icon}</span>`;
+      if (card.image) button.classList.add("hasArt");
+      button.innerHTML = `${art}<div class="dpContent"><div class="dpTop">${icon}<span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div></div>`;
       button.onclick = () => {
         const current = setupSelection.indexOf(id);
         if (current >= 0) setupSelection.splice(current, 1);
