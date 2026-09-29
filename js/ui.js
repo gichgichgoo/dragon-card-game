@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20260929-7";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20260929-8";
 
 const $ = (id) => document.getElementById(id);
 
@@ -42,9 +42,15 @@ export function createUI() {
   function cardElement(id, index = -1, zone = "choice", selected = false, fieldEntry = null) {
     const card = CARDS[id];
     const visual = card.type === "dragon" ? "monster" : "spell";
+    const hasArt = Boolean(card.image);
     const el = document.createElement("div");
-    el.className = `card ${visual} ${zone === "hand" ? "selectable" : ""} ${selected ? "selected" : ""}`;
-    el.innerHTML = `<div class="icon">${card.icon}</div><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
+    el.className = `card ${visual} ${hasArt ? "hasArt" : ""} ${zone === "hand" ? "selectable" : ""} ${selected ? "selected" : ""}`;
+
+    const art = hasArt
+      ? `<div class="cardArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div><div class="cardArtShade"></div>`
+      : "";
+
+    el.innerHTML = `${art}<div class="cardInfo"><div class="icon">${card.icon}</div><div class="cardText"><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div></div></div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
     if (zone === "hand") el.onclick = () => handlers.selectCard?.(index);
     return el;
   }
@@ -472,7 +478,8 @@ export function createUI() {
       button.type = "button";
       button.className = "dragonPick";
       const cost = card.freeSummon ? "\u53ec\u559a\u9663\u4e0d\u8981" : "\u53ec\u559a\u96631\u679a";
-      button.innerHTML = `<div class="dpTop"><span class="dpIcon">${card.icon}</span><span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div>`;
+      const art = card.image ? `<div class="dpArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div>` : "";
+      button.innerHTML = `${art}<div class="dpTop"><span class="dpIcon">${card.icon}</span><span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div>`;
       button.onclick = () => {
         const current = setupSelection.indexOf(id);
         if (current >= 0) setupSelection.splice(current, 1);
