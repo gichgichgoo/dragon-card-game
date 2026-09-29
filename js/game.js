@@ -1,9 +1,9 @@
-import { CARDS, isDragon } from "./cards.js?v=20260929-6";
-import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany, getDeck, getDiscard } from "./deck.js?v=20260929-6";
-import { pickCpuDeck } from "./enemyDecks.js?v=20260929-6";
-import { createEnemyAI } from "./enemyAI.js?v=20260929-6";
+import { CARDS, isDragon } from "./cards.js?v=20260929-7";
+import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany, getDeck, getDiscard } from "./deck.js?v=20260929-7";
+import { pickCpuDeck } from "./enemyDecks.js?v=20260929-7";
+import { createEnemyAI } from "./enemyAI.js?v=20260929-7";
 import { createCombatApi } from "./combat.js";
-import { resolveSpellEffect, resolveDragonTurnStart, resolveSummonCardEffect } from "./effects.js?v=20260929-6";
+import { resolveSpellEffect, resolveDragonTurnStart, resolveSummonCardEffect } from "./effects.js?v=20260929-7";
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
