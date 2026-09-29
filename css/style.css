@@ -538,15 +538,15 @@ body{min-height:100%;overscroll-behavior:none}
   line-height:1;
 }
 .starterBadge{
+  display:none;
   min-width:18px;
   height:18px;
   margin-left:2px;
   font-size:10px;
-  opacity:.16;
-  filter:grayscale(1);
   vertical-align:middle;
 }
 .starterBadge.active{
+  display:inline-flex;
   opacity:1;
   filter:none;
   border-color:#8e7747;
