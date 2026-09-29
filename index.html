@@ -45,9 +45,8 @@
         <h2>デッキ構築</h2>
         <p class="subinfo">16枚固定。魔法は同名を複数枚選べます。</p>
       </div>
-      <div class="setupCount"><span id="setupSelectedCount">2</span>/16</div>
+      <div class="setupCount"><span id="setupSelectedCount">0</span>/16</div>
     </div>
-    <div class="fixedBuild">⭕ 竜の召喚陣 ×2 <span>固定</span></div>
     <div class="difficultyRow">
       <div class="difficultyLabel">CPU難易度</div>
       <div class="difficultyButtons">
@@ -61,6 +60,11 @@
         <div class="setupCategoryHead"><b>🐉 ドラゴン</b><span id="dragonBuildCount">0/3</span></div>
         <div class="setupNote">3種類を各1枚。ドラゴンは同名重複なし。</div>
         <div id="dragonSetupGrid" class="dragonSetupGrid"></div>
+      </section>
+      <section class="setupSection">
+        <div class="setupCategoryHead"><b>⭕ 召喚</b><span id="summonBuildCount">0/2</span></div>
+        <div class="setupNote">合計2枚。同名を複数枚選択できます。ドラゴン召喚時に1枚使用。</div>
+        <div id="summonSetupGrid" class="spellSetupGrid"></div>
       </section>
       <section class="setupSection">
         <div class="setupCategoryHead"><b>基本魔法</b><span id="basicBuildCount">0/5</span></div>
@@ -89,17 +93,26 @@
   </div>
 </div>
 <div id="rulesModal" class="modal"><div class="modalBox">
-<h2>正式ルール案 v2.6</h2>
+<h2>正式ルール案 v2.7</h2>
 <div class="ruleKey"><b>勝利条件：</b> 相手のライフ4を先に0にする。</div>
 <ol>
-<li>開始前に16枚のデッキを構築する。内訳は<b>ドラゴン3枚＋竜の召喚陣2枚固定＋基本魔法5枚＋戦術魔法4枚＋強力魔法2枚</b>。</li>
+<li>開始前に16枚のデッキを構築する。内訳は<b>ドラゴン3枚＋召喚2枚＋基本魔法5枚＋戦術魔法4枚＋強力魔法2枚</b>。</li>
 <li>ドラゴンは3種類を各1枚。魔法は<b>同名を複数枚選択可能</b>。CPUはプレイヤーと別構成で、選んだ難易度に応じた<b>専用デッキをランダムに使用</b>する。</li>
 <li>各自5枚で開始し、<b>先攻後攻はランダム</b>。先攻1ターン目だけドローなし・使用1枚まで。後攻は最初の自分ターンから1枚引き、通常2枚まで使用する。<b>連唱でも先攻1ターン目の1枚制限は増やせない。</b></li>
-<li>ドラゴン召喚は使用1回。通常は召喚陣1枚を消費するが、<b>小さな竜は召喚陣不要</b>。</li>
+<li>ドラゴン召喚は使用1回。通常は<b>召喚カード1枚</b>を選んで消費するが、<b>小さな竜は召喚カード不要</b>。召喚カードの追加効果は召喚成功時のみ発生する。</li>
 <li>ドラゴンは場に残り、自分のターン開始時に能力を使う。「竜払い」は相手の場から対象を選べる。</li>
 <li>📘1つで相手のカードを打ち消せる。打ち消された側は📘2つで打ち消し返し可能。打ち消し返し返しは不可。</li>
 <li>ターン終了時に手札が6枚以上なら5枚まで捨てる。片方の山札だけ0ならその側は以後ドローできない。両方0になったターン終了時に残りライフで決着。</li>
 </ol>
+<h3>召喚｜2枚</h3>
+<div class="grid2">
+<div class="ruleKey"><b>⭕ 竜の召喚陣</b><br><span class="note">召喚が打ち消されても手札に残る</span></div>
+<div class="ruleKey"><b>🩸 血契の召喚陣</b><br><span class="note">成功時：自分1ダメージ・打ち消し+1</span></div>
+<div class="ruleKey"><b>🔮 叡智の召喚陣</b><br><span class="note">成功時：1ドロー1捨て</span></div>
+<div class="ruleKey"><b>🌌 星導の召喚陣</b><br><span class="note">成功時：山札のドラゴン1枚を一番上へ</span></div>
+<div class="ruleKey"><b>🛡️ 守護の召喚陣</b><br><span class="note">成功時：次の自分ターンまで竜払いの対象外</span></div>
+<div class="ruleKey"><b>🌿 生命の召喚陣</b><br><span class="note">成功時：ライフ2以下なら1回復</span></div>
+</div>
 <h3>基本魔法｜5枚</h3>
 <div class="grid2">
 <div class="ruleKey"><b>✨ 火花</b><br><span class="note">相手1ダメージ</span></div>
@@ -124,7 +137,7 @@
 <div class="ruleKey"><b>🌀 竜魂還し</b><br><span class="note">両者どちらかの捨て札からドラゴンを自分の場へ復活</span></div>
 <div class="ruleKey"><b>💥 竜の残響</b><br><span class="note">自分のドラゴン1体を捨てて相手3ダメージ</span></div>
 </div>
-<p class="note">※ v2.6：先攻後攻をランダム化。先攻1ターン目はドローなし・使用1枚を厳格適用。</p>
+<p class="note">※ v2.7：召喚2枚を固定枠から選択カテゴリへ変更。召喚カード6種を追加。</p>
 <div class="modalActions"><button id="closeRules" class="primary">ゲームに戻る</button></div>
 </div></div>
 
