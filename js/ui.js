@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -6,8 +6,8 @@ export function createUI() {
   const refs = {
     setup: $("setupModal"), setupGrid: $("dragonSetupGrid"), setupCount: $("setupSelectedCount"), setupHint: $("setupHint"), startGame: $("startGameBtn"),
     diffEasy: $("diffEasy"), diffNormal: $("diffNormal"), diffHard: $("diffHard"),
-    dragonBuildCount: $("dragonBuildCount"), basicBuildCount: $("basicBuildCount"), tacticalBuildCount: $("tacticalBuildCount"), powerfulBuildCount: $("powerfulBuildCount"),
-    basicGrid: $("basicSetupGrid"), tacticalGrid: $("tacticalSetupGrid"), powerfulGrid: $("powerfulSetupGrid"),
+    dragonBuildCount: $("dragonBuildCount"), summonBuildCount: $("summonBuildCount"), basicBuildCount: $("basicBuildCount"), tacticalBuildCount: $("tacticalBuildCount"), powerfulBuildCount: $("powerfulBuildCount"),
+    summonGrid: $("summonSetupGrid"), basicGrid: $("basicSetupGrid"), tacticalGrid: $("tacticalSetupGrid"), powerfulGrid: $("powerfulSetupGrid"),
     pHearts: $("playerHearts"), cHearts: $("cpuHearts"), pCounters: $("playerCounters"), cCounters: $("cpuCounters"),
     cHandN: $("cpuHandCount"), pDeckN: $("playerDeckCount"), cDeckN: $("cpuDeckCount"), turnNo: $("turnNo"),
     pHand: $("playerHand"), cHand: $("cpuHand"), pField: $("playerField"), cField: $("cpuField"),
@@ -24,7 +24,7 @@ export function createUI() {
   let handlers = {};
   let counterResolver = null;
   let setupSelection = [];
-  let setupSpells = { basic: {}, tactical: {}, powerful: {} };
+  let setupSpells = { summon: {}, basic: {}, tactical: {}, powerful: {} };
   let setupDifficulty = "normal";
   let pendingDrawAnimations = [];
   let pendingFieldAnimations = [];
@@ -39,12 +39,12 @@ export function createUI() {
     refs.log.prepend(p);
   }
 
-  function cardElement(id, index = -1, zone = "choice", selected = false) {
+  function cardElement(id, index = -1, zone = "choice", selected = false, fieldEntry = null) {
     const card = CARDS[id];
     const visual = card.type === "dragon" ? "monster" : "spell";
     const el = document.createElement("div");
     el.className = `card ${visual} ${zone === "hand" ? "selectable" : ""} ${selected ? "selected" : ""}`;
-    el.innerHTML = `<div class="icon">${card.icon}</div><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div>`;
+    el.innerHTML = `<div class="icon">${card.icon}</div><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
     if (zone === "hand") el.onclick = () => handlers.selectCard?.(index);
     return el;
   }
@@ -92,7 +92,7 @@ export function createUI() {
   }
 
   function canSummonFromUi(state, who, id) {
-    return isDragon(id) && (CARDS[id].freeSummon || state[who].hand.includes("summon"));
+    return isDragon(id) && (CARDS[id].freeSummon || state[who].hand.some((cardId) => CARDS[cardId]?.type === "summon"));
   }
 
   function render(state) {
@@ -130,7 +130,7 @@ export function createUI() {
 
     for (const [element, field] of [[refs.pField, state.player.field], [refs.cField, state.cpu.field]]) {
       element.innerHTML = "";
-      field.forEach((entry) => element.appendChild(cardElement(entry.id, -1, "field")));
+      field.forEach((entry) => element.appendChild(cardElement(entry.id, -1, "field", false, entry)));
       if (!field.length) element.innerHTML = '<div class="empty">\u9b54\u7269\u306a\u3057</div>';
     }
 
@@ -174,7 +174,7 @@ export function createUI() {
           : valid && !availability.playable
             ? availability.reason
             : isDragon(selectedId)
-              ? (CARDS[selectedId].freeSummon ? "召喚陣なしで場に出せます。" : "召喚陣を1枚消費して場に出します。")
+              ? (CARDS[selectedId].freeSummon ? "召喚カードなしで場に出せます。" : "使用する召喚カードを選んで場に出します。")
               : "カードをタップ →「カードを使う」";
 
     flushBoardAnimations();
@@ -396,13 +396,14 @@ export function createUI() {
 
   function setupReady() {
     return setupSelection.length === BUILD_LIMITS.dragons
+      && tierTotal("summon") === BUILD_LIMITS.summon
       && tierTotal("basic") === BUILD_LIMITS.basic
       && tierTotal("tactical") === BUILD_LIMITS.tactical
       && tierTotal("powerful") === BUILD_LIMITS.powerful;
   }
 
   function setupTotal() {
-    return 2 + setupSelection.length + tierTotal("basic") + tierTotal("tactical") + tierTotal("powerful");
+    return setupSelection.length + tierTotal("summon") + tierTotal("basic") + tierTotal("tactical") + tierTotal("powerful");
   }
 
   function refreshDifficultyButtons() {
@@ -412,11 +413,12 @@ export function createUI() {
   function refreshSetup() {
     refs.setupCount.textContent = setupTotal();
     refs.dragonBuildCount.textContent = `${setupSelection.length}/${BUILD_LIMITS.dragons}`;
+    refs.summonBuildCount.textContent = `${tierTotal("summon")}/${BUILD_LIMITS.summon}`;
     refs.basicBuildCount.textContent = `${tierTotal("basic")}/${BUILD_LIMITS.basic}`;
     refs.tacticalBuildCount.textContent = `${tierTotal("tactical")}/${BUILD_LIMITS.tactical}`;
     refs.powerfulBuildCount.textContent = `${tierTotal("powerful")}/${BUILD_LIMITS.powerful}`;
     refs.startGame.disabled = !setupReady();
-    refs.setupHint.textContent = setupReady() ? "16\u679a\u5b8c\u6210\u3002\u30b2\u30fc\u30e0\u3092\u958b\u59cb\u3067\u304d\u307e\u3059\u3002" : "\u30c9\u30e9\u30b4\u30f33\u30fb\u57fa\u672c5\u30fb\u6226\u88534\u30fb\u5f37\u529b2\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002";
+    refs.setupHint.textContent = setupReady() ? "16枚完成。ゲームを開始できます。" : "ドラゴン3・召喚2・基本5・戦術4・強力2を選んでください。";
     document.querySelectorAll(".spellPick").forEach((row) => {
       const tier = row.dataset.tier;
       const id = row.dataset.id;
@@ -453,7 +455,7 @@ export function createUI() {
 
   function openSetup() {
     setupSelection = [];
-    setupSpells = { basic: {}, tactical: {}, powerful: {} };
+    setupSpells = { summon: {}, basic: {}, tactical: {}, powerful: {} };
     setupDifficulty = "normal";
     refs.setupGrid.innerHTML = "";
     DRAGON_POOL.forEach((id) => {
@@ -472,6 +474,7 @@ export function createUI() {
       };
       refs.setupGrid.appendChild(button);
     });
+    buildSpellSetup("summon", SUMMON_POOL, refs.summonGrid);
     buildSpellSetup("basic", SPELL_POOLS.basic, refs.basicGrid);
     buildSpellSetup("tactical", SPELL_POOLS.tactical, refs.tacticalGrid);
     buildSpellSetup("powerful", SPELL_POOLS.powerful, refs.powerfulGrid);
@@ -481,7 +484,7 @@ export function createUI() {
   }
 
   function currentBuild() {
-    return { dragons: [...setupSelection], basic: { ...setupSpells.basic }, tactical: { ...setupSpells.tactical }, powerful: { ...setupSpells.powerful } };
+    return { dragons: [...setupSelection], summon: { ...setupSpells.summon }, basic: { ...setupSpells.basic }, tactical: { ...setupSpells.tactical }, powerful: { ...setupSpells.powerful } };
   }
 
   function clearForGameStart() {
