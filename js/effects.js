@@ -114,33 +114,38 @@ export async function resolveSpellEffect(ctx, who, id) {
     },
 
     async banish() {
-      if (!opponent.field.length) {
-        ctx.log("相手の場にドラゴンがなく空振り。");
+      const eligible = opponent.field
+        .map((entry, fieldIndex) => ({ ...entry, fieldIndex }))
+        .filter((entry) => !entry.summonGuard);
+
+      if (!eligible.length) {
+        ctx.log("「竜払い」の対象にできるドラゴンがなく空振り。");
         return;
       }
 
-      let index;
+      let pick;
 
       if (who === "player") {
-        index = await ctx.ui.chooseCard(
+        pick = await ctx.ui.chooseCard(
           "竜払い",
           "捨てるドラゴンを選んでください。",
-          opponent.field.map((entry) => entry.id)
+          eligible.map((entry) => entry.id)
         );
       } else {
-        index = 0;
+        pick = 0;
 
-        for (let i = 1; i < opponent.field.length; i++) {
+        for (let i = 1; i < eligible.length; i++) {
           if (
-            CARDS[opponent.field[i].id].threat >
-            CARDS[opponent.field[index].id].threat
+            CARDS[eligible[i].id].threat >
+            CARDS[eligible[pick].id].threat
           ) {
-            index = i;
+            pick = i;
           }
         }
       }
 
-      const target = opponent.field[index];
+      const selected = eligible[pick];
+      const target = opponent.field[selected.fieldIndex];
 
       if (target.id === "phantom" && !target.banishShieldUsed) {
         target.banishShieldUsed = true;
@@ -153,7 +158,7 @@ export async function resolveSpellEffect(ctx, who, id) {
         return;
       }
 
-      const [removed] = opponent.field.splice(index, 1);
+      const [removed] = opponent.field.splice(selected.fieldIndex, 1);
 
       ctx.getDiscard(opponentName).push(removed.id);
 
@@ -307,6 +312,98 @@ export async function resolveSpellEffect(ctx, who, id) {
   }
 
   await handler();
+}
+
+export async function resolveSummonCardEffect(ctx, who, summonId, fieldEntry) {
+  if (!summonId) return;
+
+  const state = ctx.getState();
+  const me = state[who];
+  const actor = who === "player" ? "あなた" : "CPU";
+  const logClass = who === "player" ? "you" : "cpu";
+  const card = CARDS[summonId];
+
+  switch (card.summonEffect) {
+    case "blood": {
+      ctx.damage(who, who, 1, false);
+      const before = me.counters;
+      me.counters = Math.min(3, me.counters + 1);
+      ctx.log(
+        `${actor}の「血契の召喚陣」。自分に1ダメージ、打ち消しを${me.counters - before}回復。`,
+        logClass
+      );
+      break;
+    }
+
+    case "wisdom": {
+      const drawn = ctx.draw(who, false);
+      if (drawn !== null) {
+        await ctx.discardFromHand(who, 1, "叡智の召喚陣");
+        ctx.log(`${actor}の「叡智の召喚陣」。1枚引いて1枚捨てました。`, logClass);
+      } else {
+        ctx.log(`${actor}の「叡智の召喚陣」は山札切れで追加効果なし。`, logClass);
+      }
+      break;
+    }
+
+    case "star": {
+      const deck = ctx.getDeck(who);
+      const entries = deck
+        .map((id, index) => ({ id, index }))
+        .filter((entry) => CARDS[entry.id]?.type === "dragon");
+
+      if (!entries.length) {
+        ctx.log(`${actor}の「星導の召喚陣」は山札にドラゴンがなく追加効果なし。`, logClass);
+        break;
+      }
+
+      let pick = 0;
+
+      if (who === "player") {
+        pick = await ctx.ui.chooseEntry(
+          "星導の召喚陣",
+          "山札の一番上へ置くドラゴンを選んでください。",
+          entries.map((entry) => ({ ...entry, label: "山札" }))
+        );
+      } else {
+        for (let i = 1; i < entries.length; i++) {
+          if (CARDS[entries[i].id].threat > CARDS[entries[pick].id].threat) pick = i;
+        }
+      }
+
+      const selected = entries[pick];
+      const [dragonId] = deck.splice(selected.index, 1);
+      deck.push(dragonId);
+
+      ctx.log(
+        `${actor}の「星導の召喚陣」で「${CARDS[dragonId].name}」を山札の一番上へ。`,
+        logClass
+      );
+      break;
+    }
+
+    case "guard": {
+      if (fieldEntry) fieldEntry.summonGuard = true;
+      ctx.log(
+        `${actor}の「守護の召喚陣」。召喚したドラゴンは次の自分のターン開始まで竜払いの対象になりません。`,
+        logClass
+      );
+      break;
+    }
+
+    case "life": {
+      if (me.hp <= 2) {
+        const healed = ctx.heal(who, 1);
+        ctx.log(`${actor}の「生命の召喚陣」で${healed}回復。`, logClass);
+      } else {
+        ctx.log(`${actor}の「生命の召喚陣」はライフ3以上のため追加効果なし。`, logClass);
+      }
+      break;
+    }
+
+    default:
+      break;
+  }
 }
 
 export async function resolveDragonTurnStart(ctx, who, fieldCard) {
