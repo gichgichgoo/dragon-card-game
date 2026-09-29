@@ -521,3 +521,182 @@ body{min-height:100%;overscroll-behavior:none}
 @media(max-height:740px){
   .dpArt{height:45px;margin-bottom:5px}
 }
+
+
+/* Battle status icons v1 */
+.starterBadge,
+.counterBackBadge,
+.actionMeter{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  border-radius:999px;
+  border:1px solid #403648;
+  background:#17141c;
+  color:#8f8596;
+  line-height:1;
+}
+.starterBadge{
+  min-width:18px;
+  height:18px;
+  margin-left:2px;
+  font-size:10px;
+  opacity:.16;
+  filter:grayscale(1);
+  vertical-align:middle;
+}
+.starterBadge.active{
+  opacity:1;
+  filter:none;
+  border-color:#8e7747;
+  background:#302819;
+  box-shadow:0 0 8px rgba(244,207,114,.18);
+}
+.counterBackBadge{
+  width:25px;
+  min-width:25px;
+  height:27px;
+  padding:0;
+  font-size:12px;
+  opacity:.2;
+  filter:grayscale(1);
+}
+.counterBackBadge.active{
+  opacity:1;
+  filter:none;
+  color:#e7dcff;
+  border-color:#735d9c;
+  background:#271f35;
+  box-shadow:0 0 8px rgba(178,143,238,.17);
+}
+.actionMeter{
+  min-width:41px;
+  min-height:27px;
+  padding:3px 6px;
+  font-size:9px;
+  font-weight:900;
+  opacity:.35;
+}
+.actionMeter.active{
+  opacity:1;
+  color:#f7ebc4;
+  border-color:#716039;
+  background:#282317;
+}
+
+/* Artwork cards: image replaces emoji */
+.card.hasArt .cardInfo{z-index:2}
+.card.hasArt .cardText{width:100%}
+.bigIcon.cardArtIcon{
+  width:100%;
+  max-width:220px;
+  height:118px;
+  margin:0 auto 10px;
+  overflow:hidden;
+  border-radius:14px;
+  border:1px solid #6b5a78;
+  background:#111;
+  font-size:0;
+}
+.bigIcon.cardArtIcon img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+.motionCard.face.hasArt{
+  background-size:cover;
+  background-repeat:no-repeat;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  overflow:hidden;
+  border-color:#9b7e54;
+}
+.motionCard.face.hasArt .mName,
+.motionCard.face.hasArt .mText{
+  position:relative;
+  z-index:2;
+  text-shadow:0 2px 5px #000;
+  color:#fff;
+}
+
+/* Deck-builder artwork uses the whole pick as a background */
+.dragonPick.hasArt{
+  position:relative;
+  overflow:hidden;
+  min-height:132px;
+  padding:0;
+  border-color:#685641;
+  background:#111;
+}
+.dragonPick.hasArt .dpBg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+.dragonPick.hasArt .dpBg img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.dragonPick.hasArt .dpShade{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(180deg,rgba(6,6,8,.05) 0%,rgba(8,7,10,.08) 35%,rgba(8,7,10,.72) 68%,rgba(8,7,10,.96) 100%);
+}
+.dragonPick .dpContent{
+  position:relative;
+  z-index:2;
+}
+.dragonPick.hasArt .dpContent{
+  min-height:132px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:9px;
+}
+.dragonPick.hasArt .dpName,
+.dragonPick.hasArt .dpDesc,
+.dragonPick.hasArt .dpCost{
+  color:#fff;
+  text-shadow:0 2px 5px #000,0 0 7px rgba(0,0,0,.9);
+}
+.dragonPick.hasArt .dpDesc{color:#f0e9f2}
+.dragonPick.hasArt .dpCost{color:#ead8b5}
+.dragonPick.hasArt.selected{
+  border-color:#e0c180;
+  box-shadow:inset 0 0 0 2px #d6aa5f,0 0 18px rgba(218,181,111,.18);
+}
+
+/* Discard artwork thumbnail */
+.discardItem .diThumb{
+  width:38px;
+  height:46px;
+  overflow:hidden;
+  border-radius:7px;
+  border:1px solid #5e5269;
+  background:#111;
+}
+.discardItem .diThumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+@media(max-height:740px){
+  .starterBadge{min-width:16px;height:16px;font-size:9px}
+  .counterBackBadge{width:21px;min-width:21px;height:23px;font-size:10px}
+  .actionMeter{min-width:36px;min-height:23px;padding:2px 4px;font-size:8px}
+  .dragonPick.hasArt,.dragonPick.hasArt .dpContent{min-height:108px}
+}
+@media(max-width:390px){
+  .stats{gap:2px}
+  .actionMeter{min-width:36px;padding:3px 4px}
+  .counterBackBadge{width:22px;min-width:22px}
+}
