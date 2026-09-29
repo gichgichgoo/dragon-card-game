@@ -256,8 +256,8 @@ export function createGame(ui, { random = Math.random } = {}) {
         }
       } else {
         let counter = false;
-        if (state.player.counters > 0) counter = await ui.askCounter(id);
-        else await ui.showOpponentPlay(id, true);
+        if (state.player.counters > 0) counter = await ui.askCounter(id, summonPayment?.id ?? null);
+        else await ui.showOpponentPlay(id, true, summonPayment?.id ?? null);
         if (counter && state.player.counters > 0) {
           state.player.counters--;
           cancelled = true;
