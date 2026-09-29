@@ -9,7 +9,8 @@ export function createUI() {
     dragonBuildCount: $("dragonBuildCount"), summonBuildCount: $("summonBuildCount"), basicBuildCount: $("basicBuildCount"), tacticalBuildCount: $("tacticalBuildCount"), powerfulBuildCount: $("powerfulBuildCount"),
     summonGrid: $("summonSetupGrid"), basicGrid: $("basicSetupGrid"), tacticalGrid: $("tacticalSetupGrid"), powerfulGrid: $("powerfulSetupGrid"),
     pHearts: $("playerHearts"), cHearts: $("cpuHearts"), pCounters: $("playerCounters"), cCounters: $("cpuCounters"),
-    pStarter: $("playerStarter"), cStarter: $("cpuStarter"), pCounterBack: $("playerCounterBack"), cCounterBack: $("cpuCounterBack"), pAction: $("playerActionMeter"), cAction: $("cpuActionMeter"),
+    pAction: $("playerActionMeter"), cAction: $("cpuActionMeter"),
+    turnStartFlash: $("turnStartFlash"), turnStartIcon: $("turnStartIcon"), turnStartTitle: $("turnStartTitle"), turnStartSub: $("turnStartSub"),
     cHandN: $("cpuHandCount"), pDeckN: $("playerDeckCount"), cDeckN: $("cpuDeckCount"), turnNo: $("turnNo"),
     pHand: $("playerHand"), cHand: $("cpuHand"), pField: $("playerField"), cField: $("cpuField"),
     pDiscardBtn: $("playerDiscardBtn"), cDiscardBtn: $("cpuDiscardBtn"), pDiscardCount: $("playerDiscardCount"), cDiscardCount: $("cpuDiscardCount"),
@@ -91,22 +92,15 @@ export function createUI() {
 
   function renderCounters(state, who) {
     const meter = who === "player" ? refs.pCounters : refs.cCounters;
-    const back = who === "player" ? refs.pCounterBack : refs.cCounterBack;
     const count = Math.max(0, Math.min(3, state[who].counters));
     meter.setAttribute("aria-label", `${who === "player" ? "あなた" : "CPU"} 打ち消し${count}`);
     [...meter.querySelectorAll(".counterBook")].forEach((book, index) => {
       book.classList.toggle("bookOn", index < count);
       book.classList.toggle("bookOff", index >= count);
     });
-    back.classList.toggle("active", count >= 2);
-    back.setAttribute("aria-label", count >= 2 ? "打ち消し返し可能" : "打ち消し返し不可");
-    back.title = count >= 2 ? "打ち消し返し可能（📘2）" : "打ち消し返しには📘2必要";
   }
 
   function renderTurnIndicators(state) {
-    refs.pStarter.classList.toggle("active", state.starter === "player");
-    refs.cStarter.classList.toggle("active", state.starter === "cpu");
-
     const playerLimit = Math.max(0, state.playLimit ?? 0);
     const playerUsed = Math.max(0, state.playsUsed ?? 0);
     const cpuLimit = Math.max(0, state.cpuPlayLimit ?? 0);
@@ -178,8 +172,8 @@ export function createUI() {
     refs.banner.textContent = state.over
       ? "ゲーム終了"
       : state.turn === "player"
-        ? `🧙 あなたのターン${state.opening && state.starter === "player" ? " 🥇先攻1ターン目" : ""}　🃏${activeRemaining}/${activeLimit}`
-        : `🤖 CPUのターン${state.opening && state.starter === "cpu" ? " 🥇先攻1ターン目" : ""}　🃏${activeRemaining}/${activeLimit}`;
+        ? `あなたのターン｜🃏${activeRemaining}/${activeLimit}`
+        : `CPUのターン｜🃏${activeRemaining}/${activeLimit}`;
 
     const valid = state.selected !== null && state.player.hand[state.selected];
     const selectedId = valid ? state.player.hand[state.selected] : null;
@@ -336,12 +330,38 @@ export function createUI() {
     setTimeout(() => refs.result.classList.add("show"), 150);
   }
 
+  function showTurnStart(who, limit, isOpeningFirst = false) {
+    const icon = who === "player" ? "🧙" : "🤖";
+    const title = who === "player" ? "あなたのターン" : "CPUのターン";
+    refs.turnStartFlash.classList.remove("show", "player", "cpu");
+    refs.turnStartIcon.textContent = icon;
+    refs.turnStartTitle.textContent = isOpeningFirst ? `${title}　🥇 先攻` : title;
+    refs.turnStartSub.textContent = `🃏 使用可能 ${limit}枚`;
+    refs.turnStartFlash.classList.add(who === "player" ? "player" : "cpu");
+    void refs.turnStartFlash.offsetWidth;
+    refs.turnStartFlash.classList.add("show");
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        refs.turnStartFlash.classList.remove("show");
+        resolve();
+      }, 900);
+    });
+  }
+
   function showCounterFlash(kind, sub = "") {
     refs.counterFlash.classList.remove("show", "back", "play", "dragon", "summon");
     void refs.counterFlash.offsetWidth;
-    refs.counterFlashMain.textContent = kind === "back" ? "\u6253\u3061\u6d88\u3057\u8fd4\u3057\uff01" : "\u6253\u3061\u6d88\u3057\uff01";
-    refs.counterFlashSub.textContent = sub;
-    if (kind === "back") refs.counterFlash.classList.add("back");
+
+    if (kind === "back") {
+      refs.counterFlashMain.textContent = "↩️ 打ち消し返し！";
+      refs.counterFlashSub.innerHTML = '<strong class="counterCancelled">✕ 直前の打ち消しを無効化</strong>' +
+        (sub ? `<span class="counterBackDetail">${sub}</span>` : "");
+      refs.counterFlash.classList.add("back");
+    } else {
+      refs.counterFlashMain.textContent = "打ち消し！";
+      refs.counterFlashSub.textContent = sub;
+    }
+
     refs.counterFlash.classList.add("show");
   }
 
@@ -587,6 +607,6 @@ export function createUI() {
   return {
     refs, setStateProvider, bindControls, log, render, renderHearts, showHpDelta, showMaxLife,
     openSetup, clearForGameStart, queueDrawAnimation, queueFieldAnimation, showResult,
-    showCounterFlash, showOpponentPlay, askCounter, askCounterBack, chooseCard, chooseEntry,
+    showTurnStart, showCounterFlash, showOpponentPlay, askCounter, askCounterBack, chooseCard, chooseEntry,
   };
 }
