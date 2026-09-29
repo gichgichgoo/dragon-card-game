@@ -1,4 +1,4 @@
-import { CARDS } from "./cards.js";
+import { CARDS } from "./cards.js?v=20260929-6";
 
 export async function resolveSpellEffect(ctx, who, id) {
   const state = ctx.getState();
