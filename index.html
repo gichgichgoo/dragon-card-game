@@ -12,16 +12,17 @@
 <div class="app">
   <div class="header"><div class="brand"><h1>🐉 ドラゴン・デュエル</h1></div><div class="headerBtns"><button id="logBtn" class="smallBtn">ログ</button><button id="rulesBtn" class="smallBtn">ルール</button><button id="restartBtn" class="smallBtn">↻</button></div></div>
   <div id="turnBanner" class="turn">準備中…</div>
-  <section class="zone cpuZone"><div class="status"><div class="who">🤖 CPU <span id="cpuStarter" class="starterBadge" title="先攻">🥇</span></div><div class="stats"><span class="lifeMeter" id="cpuHearts" aria-label="CPU ライフ4">
+  <div id="turnStartFlash" class="turnStartFlash" aria-live="polite"><div id="turnStartIcon" class="turnStartIcon">🧙</div><div id="turnStartTitle" class="turnStartTitle">あなたのターン</div><div id="turnStartSub" class="turnStartSub">🃏 使用可能 2枚</div></div>
+  <section class="zone cpuZone"><div class="status"><div class="who">🤖 CPU</div><div class="stats"><span class="lifeMeter" id="cpuHearts" aria-label="CPU ライフ4">
   <span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span>
 </span><span class="counterMeter" id="cpuCounters" aria-label="CPU 打ち消し2">
   <span class="counterBook bookOn">📘</span><span class="counterBook bookOn">📘</span><span class="counterBook bookOff">📘</span>
-</span><span id="cpuCounterBack" class="counterBackBadge" title="打ち消し返し">↩️</span><span id="cpuActionMeter" class="actionMeter" title="このターンのカード使用可能枚数">🃏—</span><span class="stat">🖐 <b id="cpuHandCount">5</b></span><span class="stat deck">🂠 <b id="cpuDeckCount">11</b></span></div></div><div class="label">CPUの手札</div><div id="cpuHand" class="cpuHand"></div><div class="label">CPUの場</div><div id="cpuField" class="field"></div></section>
-  <section class="zone playerZone"><div class="status"><div class="who">🧙 あなた <span id="playerStarter" class="starterBadge" title="先攻">🥇</span></div><div class="stats"><span class="lifeMeter" id="playerHearts" aria-label="あなた ライフ4">
+</span><span id="cpuActionMeter" class="actionMeter" title="このターンのカード使用可能枚数">🃏—</span><span class="stat">🖐 <b id="cpuHandCount">5</b></span><span class="stat deck">🂠 <b id="cpuDeckCount">11</b></span></div></div><div class="label">CPUの手札</div><div id="cpuHand" class="cpuHand"></div><div class="label">CPUの場</div><div id="cpuField" class="field"></div></section>
+  <section class="zone playerZone"><div class="status"><div class="who">🧙 あなた</div><div class="stats"><span class="lifeMeter" id="playerHearts" aria-label="あなた ライフ4">
   <span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span><span class="heart on">♥</span>
 </span><span class="counterMeter" id="playerCounters" aria-label="あなた 打ち消し2">
   <span class="counterBook bookOn">📘</span><span class="counterBook bookOn">📘</span><span class="counterBook bookOff">📘</span>
-</span><span id="playerCounterBack" class="counterBackBadge" title="打ち消し返し">↩️</span><span id="playerActionMeter" class="actionMeter" title="このターンのカード使用可能枚数">🃏—</span><span class="stat deck">🂠 <b id="playerDeckCount">11</b></span></div></div><div class="label">あなたの場</div><div id="playerField" class="field"></div><div class="label">あなたの手札</div><div id="playerHand" class="hand"></div></section>
+</span><span id="playerActionMeter" class="actionMeter" title="このターンのカード使用可能枚数">🃏—</span><span class="stat deck">🂠 <b id="playerDeckCount">11</b></span></div></div><div class="label">あなたの場</div><div id="playerField" class="field"></div><div class="label">あなたの手札</div><div id="playerHand" class="hand"></div></section>
   <section class="zone public">
   <div>
     <b style="font-size:13px">公開捨て札</b>
