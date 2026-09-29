@@ -1,7 +1,7 @@
 import { CARDS, isDragon } from "./cards.js";
 import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany, getDeck, getDiscard } from "./deck.js";
 import { pickCpuDeck } from "./enemyDecks.js";
-import { createEnemyAI } from "./enemyAI.js";
+import { createEnemyAI } from "./enemyAI.js?v=20260929-5";
 import { createCombatApi } from "./combat.js";
 import { resolveSpellEffect, resolveDragonTurnStart } from "./effects.js";
 
