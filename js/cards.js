@@ -17,7 +17,7 @@ export const CARDS = {
   revive: { name: "竜魂還し", icon: "🌀", type: "spell", tier: "powerful", desc: "どちらかの捨て札からドラゴン1体を選び、自分の場に復活させる。", threat: 9 },
   sacrifice: { name: "竜の残響", icon: "💥", type: "spell", tier: "powerful", desc: "自分の場のドラゴン1体を捨て札にし、相手に3ダメージ。", threat: 9 },
 
-  whelp: { name: "小さな竜", icon: "🐲", type: "dragon", image: "./assets/dragons/whelp.webp", artPosition: "58% 32%", desc: "召喚陣なしで召喚できる。自分のターン開始時に1ダメージ。", threat: 6, freeSummon: true, attack: 1 },
+  whelp: { name: "小さな竜", icon: "🐲", type: "dragon", image: "./assets/dragons/whelp.webp", artPosition: "58% 32%", desc: "召喚カードなしで召喚できる。自分のターン開始時に1ダメージ。", threat: 6, freeSummon: true, attack: 1 },
   dragon: { name: "古竜", icon: "🐉", type: "dragon", image: "./assets/dragons/dragon.webp", artPosition: "56% 30%", desc: "自分のターン開始時に4ダメージ。", threat: 10, attack: 4 },
   mirror: { name: "ミラードラゴン", icon: "🪞", type: "dragon", image: "./assets/dragons/mirror.webp", artPosition: "50% 50%", desc: "攻撃1。各相手ターン、最初に受けた相手由来ダメージを同量反射する。", threat: 8, attack: 1 },
   shell: { name: "甲殻竜", icon: "🛡️", type: "dragon", desc: "攻撃1。各相手ターン、最初に受ける相手由来ダメージを1軽減する。", threat: 7, attack: 1 },
