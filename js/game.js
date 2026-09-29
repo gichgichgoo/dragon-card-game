@@ -56,7 +56,71 @@ export function createGame(ui, { random = Math.random } = {}) {
     return entries;
   }
 
-  const ai = createEnemyAI({ getState, canSummon, reviveEntries, random });
+  function getPlayability(who, id) {
+    if (!state || !CARDS[id]) return { playable: false, reason: "このカードは使用できません。" };
+
+    const me = state[who];
+    const opponentName = who === "player" ? "cpu" : "player";
+    const opponent = state[opponentName];
+    const deck = getDeck(state, who);
+    const discard = getDiscard(state, who);
+
+    if (id === "summon") {
+      return { playable: false, reason: "召喚陣は直接使いません。召喚したいドラゴンを選びます。" };
+    }
+
+    if (isDragon(id) && !canSummon(who, id)) {
+      return { playable: false, reason: "このドラゴンの召喚には「竜の召喚陣」が必要です。" };
+    }
+
+    switch (id) {
+      case "echo":
+        if (state.opening && state.starter === who) {
+          return { playable: false, reason: "先攻1ターン目は「連唱」を使用できません。" };
+        }
+        break;
+      case "sacrifice":
+        if (!me.field.length) return { playable: false, reason: "自分の場に生贄にできるドラゴンがいません。" };
+        break;
+      case "banish":
+        if (!opponent.field.length) return { playable: false, reason: "相手の場に「竜払い」の対象となるドラゴンがいません。" };
+        break;
+      case "revive":
+        if (!reviveEntries().length) return { playable: false, reason: "どちらの捨て札にも復活できるドラゴンがいません。" };
+        break;
+      case "recall":
+        if (!discard.length) return { playable: false, reason: "自分の捨て札がありません。" };
+        break;
+      case "foresee":
+        if (!deck.length) return { playable: false, reason: "自分の山札がありません。" };
+        break;
+      case "steal":
+        if (!opponent.hand.length) return { playable: false, reason: "相手の手札がありません。" };
+        break;
+      case "heal":
+        if (me.hp >= 4) return { playable: false, reason: "ライフはすでに最大です。" };
+        if (opponent.field.some((entry) => entry.id === "void")) {
+          return { playable: false, reason: "相手の「虚無竜」により回復できません。" };
+        }
+        break;
+      case "ward":
+        if (me.counters >= 3) return { playable: false, reason: "打ち消しはすでに最大です。" };
+        break;
+      case "study":
+        if (!deck.length) return { playable: false, reason: "山札がないためカードを引けません。" };
+        break;
+      case "cycle":
+        if (!deck.length) return { playable: false, reason: "山札がないため「魔力循環」を使用できません。" };
+        break;
+      case "surge":
+        if (!deck.length) return { playable: false, reason: "山札がないため「知識の奔流」を使用できません。" };
+        break;
+    }
+
+    return { playable: true, reason: "" };
+  }
+
+  const ai = createEnemyAI({ getState, canSummon, reviveEntries, getPlayability, random });
   const combat = createCombatApi({ getState, ui, log });
 
   async function discardFromHand(who, count, title) {
@@ -120,6 +184,11 @@ export function createGame(ui, { random = Math.random } = {}) {
     if (index < 0 || index >= hand.length) return;
     const id = hand[index];
     const card = CARDS[id];
+    const availability = getPlayability(who, id);
+    if (!availability.playable) {
+      if (who === "player") log(availability.reason, "sys");
+      return false;
+    }
     let cancelled = false;
 
     if (id === "summon") {
@@ -359,6 +428,13 @@ export function createGame(ui, { random = Math.random } = {}) {
     }
     if (state.playsUsed >= state.playLimit) return;
     const index = state.selected;
+    const id = state.player.hand[index];
+    const availability = getPlayability("player", id);
+    if (!availability.playable) {
+      log(availability.reason, "sys");
+      ui.render(state);
+      return;
+    }
     state.selected = null;
     await playCard("player", index);
     ui.render(state);
@@ -402,7 +478,7 @@ export function createGame(ui, { random = Math.random } = {}) {
   }
 
   ui.setStateProvider(getState);
-  ui.bindControls({ selectCard, playSelected, endTurn: endPlayerTurn, reset, startGame });
+  ui.bindControls({ selectCard, playSelected, endTurn: endPlayerTurn, reset, startGame, getPlayability });
 
-  return { getState, reset, startGame, playCard, checkGameOver, finishByDeck };
+  return { getState, reset, startGame, playCard, checkGameOver, finishByDeck, getPlayability };
 }
