@@ -28,10 +28,17 @@ export const CARDS = {
   berserk: { name: "暴竜", icon: "🔥", type: "dragon", desc: "自分のターン開始時、相手に2ダメージ、自分に1ダメージ。", threat: 9, attack: 2, selfDamage: 1 },
   phantom: { name: "幻影竜", icon: "👻", type: "dragon", desc: "攻撃1。最初に受ける「竜払い」を1回だけ無効化する。", threat: 7, attack: 1, banishShield: true },
 
-  summon: { name: "竜の召喚陣", icon: "⭕", type: "summon", desc: "ドラゴン召喚時に1枚消費する。小さな竜には不要。", threat: 1 },
+  summon: { name: "竜の召喚陣", icon: "⭕", type: "summon", desc: "ドラゴン召喚に使用。召喚が打ち消された場合、このカードは手札に残る。", threat: 4, retainOnCounter: true },
+  bloodSummon: { name: "血契の召喚陣", icon: "🩸", type: "summon", desc: "召喚成功時、自分に1ダメージ。打ち消しを1つ回復（最大3）。", threat: 6, summonEffect: "blood" },
+  wisdomSummon: { name: "叡智の召喚陣", icon: "🔮", type: "summon", desc: "召喚成功時、1枚引いて1枚捨てる。", threat: 6, summonEffect: "wisdom" },
+  starSummon: { name: "星導の召喚陣", icon: "🌌", type: "summon", desc: "召喚成功時、山札のドラゴン1枚を選んで山札の一番上へ置く。", threat: 6, summonEffect: "star" },
+  guardSummon: { name: "守護の召喚陣", icon: "🛡️", type: "summon", desc: "召喚したドラゴンは次の自分のターン開始まで「竜払い」の対象にならない。", threat: 7, summonEffect: "guard" },
+  lifeSummon: { name: "生命の召喚陣", icon: "🌿", type: "summon", desc: "召喚成功時、自分のライフが2以下なら1回復する。", threat: 5, summonEffect: "life" },
 };
 
 export const DRAGON_POOL = ["whelp", "dragon", "mirror", "shell", "life", "thunder", "void", "sage", "berserk", "phantom"];
+
+export const SUMMON_POOL = ["summon", "bloodSummon", "wisdomSummon", "starSummon", "guardSummon", "lifeSummon"];
 
 export const SPELL_POOLS = {
   basic: ["spark", "heal", "study", "steal", "ward", "cycle"],
@@ -39,7 +46,7 @@ export const SPELL_POOLS = {
   powerful: ["inferno", "revive", "sacrifice"],
 };
 
-export const BUILD_LIMITS = { dragons: 3, basic: 5, tactical: 4, powerful: 2 };
+export const BUILD_LIMITS = { dragons: 3, summon: 2, basic: 5, tactical: 4, powerful: 2 };
 
 export function getCard(id) {
   return CARDS[id];
