@@ -6,6 +6,7 @@ export const CPU_DECKS = {
       name: "小竜連打",
       build: {
         dragons: ["whelp", "life", "shell"],
+        summon: { wisdomSummon: 1, lifeSummon: 1 },
         basic: {
           spark: 2,
           heal: 1,
@@ -29,6 +30,7 @@ export const CPU_DECKS = {
       name: "守りの学習",
       build: {
         dragons: ["whelp", "shell", "sage"],
+        summon: { summon: 1, lifeSummon: 1 },
         basic: {
           heal: 2,
           study: 1,
@@ -52,6 +54,7 @@ export const CPU_DECKS = {
       name: "古竜見習い",
       build: {
         dragons: ["whelp", "dragon", "life"],
+        summon: { summon: 1, guardSummon: 1 },
         basic: {
           spark: 1,
           heal: 1,
@@ -78,6 +81,7 @@ export const CPU_DECKS = {
       name: "雷鏡テンポ",
       build: {
         dragons: ["thunder", "mirror", "whelp"],
+        summon: { wisdomSummon: 1, guardSummon: 1 },
         basic: {
           spark: 2,
           study: 1,
@@ -101,6 +105,7 @@ export const CPU_DECKS = {
       name: "封魔古竜",
       build: {
         dragons: ["dragon", "void", "shell"],
+        summon: { summon: 1, guardSummon: 1 },
         basic: {
           spark: 1,
           heal: 1,
@@ -124,6 +129,7 @@ export const CPU_DECKS = {
       name: "残響再生",
       build: {
         dragons: ["whelp", "thunder", "phantom"],
+        summon: { bloodSummon: 1, starSummon: 1 },
         basic: {
           spark: 1,
           study: 1,
@@ -150,6 +156,7 @@ export const CPU_DECKS = {
       name: "古竜支配",
       build: {
         dragons: ["dragon", "phantom", "void"],
+        summon: { guardSummon: 1, bloodSummon: 1 },
         basic: {
           study: 1,
           steal: 1,
@@ -172,6 +179,7 @@ export const CPU_DECKS = {
       name: "連鎖残響",
       build: {
         dragons: ["whelp", "thunder", "berserk"],
+        summon: { bloodSummon: 2 },
         basic: {
           spark: 2,
           study: 1,
@@ -194,6 +202,7 @@ export const CPU_DECKS = {
       name: "拘束鏡殻",
       build: {
         dragons: ["mirror", "shell", "void"],
+        summon: { guardSummon: 1, wisdomSummon: 1 },
         basic: {
           heal: 1,
           study: 1,
