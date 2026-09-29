@@ -1,4 +1,4 @@
-import { cloneBuild } from "./deck.js?v=20260929-6";
+import { cloneBuild } from "./deck.js?v=20260929-7";
 
 export const CPU_DECKS = {
   easy: [
