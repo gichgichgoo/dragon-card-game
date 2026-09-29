@@ -251,6 +251,7 @@ export function createGame(ui, { random = Math.random } = {}) {
             state.player.counters -= 2;
             cancelled = false;
             ui.showCounterFlash("back", `\u3042\u306a\u305f\u304c\u300c${card.name}\u300d\u306e\u53ec\u559a\u3092\u901a\u3057\u305f`);
+            await wait(650);
             log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011\u3042\u306a\u305f\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u306e\u53ec\u559a\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "you");
           }
         }
@@ -267,6 +268,7 @@ export function createGame(ui, { random = Math.random } = {}) {
             state.cpu.counters -= 2;
             cancelled = false;
             ui.showCounterFlash("back", `CPU\u304c\u300c${card.name}\u300d\u306e\u53ec\u559a\u3092\u901a\u3057\u305f`);
+            await wait(650);
             log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011CPU\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u306e\u53ec\u559a\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "cpu");
           }
         }
@@ -339,7 +341,8 @@ export function createGame(ui, { random = Math.random } = {}) {
           state.player.counters -= 2;
           cancelled = false;
           ui.showCounterFlash("back", `\u3042\u306a\u305f\u304c\u300c${card.name}\u300d\u3092\u901a\u3057\u305f`);
-          log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011\u3042\u306a\u305f\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "you");
+          await wait(650);
+            log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011\u3042\u306a\u305f\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "you");
         }
       }
     } else {
@@ -355,7 +358,8 @@ export function createGame(ui, { random = Math.random } = {}) {
           state.cpu.counters -= 2;
           cancelled = false;
           ui.showCounterFlash("back", `CPU\u304c\u300c${card.name}\u300d\u3092\u901a\u3057\u305f`);
-          log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011CPU\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "cpu");
+          await wait(650);
+            log(`\u3010\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3011CPU\u306f\ud83d\udcd8\u30922\u3064\u4f7f\u3044\u3001\u300c${card.name}\u300d\u3092\u901a\u3057\u307e\u3057\u305f\u3002`, "cpu");
         }
       }
     }
@@ -404,6 +408,9 @@ export function createGame(ui, { random = Math.random } = {}) {
       await wait(260);
       if (!state || state.epoch !== epoch || state.over) return;
     }
+
+    await ui.showTurnStart("cpu", limit, openingCpu);
+    if (!state || state.epoch !== epoch || state.over) return;
 
     if (penalty) log(`\u5c01\u9b54\u306e\u9727\u306b\u3088\u308a\u3001CPU\u306e\u4f7f\u7528\u4e0a\u9650\u306f${limit}\u679a\u3067\u3059\u3002`, "cpu");
 
@@ -459,6 +466,8 @@ export function createGame(ui, { random = Math.random } = {}) {
     draw("player");
     ui.render(state);
     checkGameOver();
+    if (state.over) return;
+    await ui.showTurnStart("player", state.playLimit, false);
   }
 
   function handoffToCpu(delay = 230) {
@@ -554,7 +563,11 @@ export function createGame(ui, { random = Math.random } = {}) {
     log(`${starter === "player" ? "\u3042\u306a\u305f" : "CPU"}\u304c\u5148\u653b\u3002\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u306f\u30c9\u30ed\u30fc\u306a\u3057\u30fb\u30ab\u30fc\u30c91\u679a\u307e\u3067\u3002`);
     log(`\u3042\u306a\u305f\u306e\u30c9\u30e9\u30b4\u30f3\u306f ${build.dragons.map((id) => CARDS[id].name).join("\uff0f")}\u3002`);
     ui.render(state);
-    if (starter === "cpu") cpuTimer = setTimeout(cpuTurn, 450);
+    if (starter === "player") {
+      ui.showTurnStart("player", 1, true);
+    } else {
+      cpuTimer = setTimeout(cpuTurn, 450);
+    }
   }
 
   function reset() {
