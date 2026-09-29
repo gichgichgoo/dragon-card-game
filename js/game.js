@@ -3,7 +3,7 @@ import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany
 import { pickCpuDeck } from "./enemyDecks.js";
 import { createEnemyAI } from "./enemyAI.js?v=20260929-5";
 import { createCombatApi } from "./combat.js";
-import { resolveSpellEffect, resolveDragonTurnStart } from "./effects.js";
+import { resolveSpellEffect, resolveDragonTurnStart, resolveSummonCardEffect } from "./effects.js";
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -14,16 +14,54 @@ export function createGame(ui, { random = Math.random } = {}) {
   const getState = () => state;
   const log = (message, className = "sys") => ui.log(message, className);
 
-  function summonIndex(who) { return state[who].hand.indexOf("summon"); }
-  function canSummon(who, id) { return isDragon(id) && (CARDS[id].freeSummon || summonIndex(who) >= 0); }
+  function summonCardIndices(who) {
+    return state[who].hand
+      .map((id, index) => ({ id, index }))
+      .filter((entry) => CARDS[entry.id]?.type === "summon");
+  }
 
-  function consumeSummon(who, id) {
-    if (CARDS[id].freeSummon) return false;
-    const index = summonIndex(who);
-    if (index < 0) return false;
-    state[who].hand.splice(index, 1);
-    getDiscard(state, who).push("summon");
-    return true;
+  function canSummon(who, id) {
+    return isDragon(id) && (CARDS[id].freeSummon || summonCardIndices(who).length > 0);
+  }
+
+  async function chooseSummonPayment(who, dragonId) {
+    if (CARDS[dragonId].freeSummon) return null;
+
+    const options = summonCardIndices(who);
+    if (!options.length) return null;
+    if (options.length === 1) return options[0];
+
+    if (who === "player") {
+      const pick = await ui.chooseCard(
+        "召喚方法",
+        `「${CARDS[dragonId].name}」に使う召喚カードを選んでください。`,
+        options.map((entry) => entry.id)
+      );
+      return options[pick];
+    }
+
+    const handIndex = ai.chooseSummonCardIndex(options.map((entry) => entry.index), dragonId);
+    return options.find((entry) => entry.index === handIndex) ?? options[0];
+  }
+
+  function removeHandIndices(who, indices) {
+    [...indices].sort((a, b) => b - a).forEach((index) => state[who].hand.splice(index, 1));
+  }
+
+  function expireSummonGuard(who) {
+    let expired = 0;
+    state[who].field.forEach((entry) => {
+      if (entry.summonGuard) {
+        delete entry.summonGuard;
+        expired++;
+      }
+    });
+    if (expired) {
+      log(
+        `${who === "player" ? "あなた" : "CPU"}の守護の召喚陣による保護が終了しました。`,
+        who === "player" ? "you" : "cpu"
+      );
+    }
   }
 
   function draw(who, announce = true) {
@@ -65,12 +103,12 @@ export function createGame(ui, { random = Math.random } = {}) {
     const deck = getDeck(state, who);
     const discard = getDiscard(state, who);
 
-    if (id === "summon") {
-      return { playable: false, reason: "召喚陣は直接使いません。召喚したいドラゴンを選びます。" };
+    if (CARDS[id].type === "summon") {
+      return { playable: false, reason: "召喚カードは直接使いません。召喚したいドラゴンを選ぶときに使用します。" };
     }
 
     if (isDragon(id) && !canSummon(who, id)) {
-      return { playable: false, reason: "このドラゴンの召喚には「竜の召喚陣」が必要です。" };
+      return { playable: false, reason: "このドラゴンの召喚には召喚カードが必要です。" };
     }
 
     switch (id) {
@@ -83,7 +121,7 @@ export function createGame(ui, { random = Math.random } = {}) {
         if (!me.field.length) return { playable: false, reason: "自分の場に生贄にできるドラゴンがいません。" };
         break;
       case "banish":
-        if (!opponent.field.length) return { playable: false, reason: "相手の場に「竜払い」の対象となるドラゴンがいません。" };
+        if (!opponent.field.some((entry) => !entry.summonGuard)) return { playable: false, reason: "相手の場に「竜払い」の対象となるドラゴンがいません。" };
         break;
       case "revive":
         if (!reviveEntries().length) return { playable: false, reason: "どちらの捨て札にも復活できるドラゴンがいません。" };
@@ -191,15 +229,16 @@ export function createGame(ui, { random = Math.random } = {}) {
     }
     let cancelled = false;
 
-    if (id === "summon") {
-      if (who === "player") log("\u300c\u7adc\u306e\u53ec\u559a\u9663\u300d\u306f\u76f4\u63a5\u4f7f\u7528\u3057\u307e\u305b\u3093\u3002\u53ec\u559a\u3057\u305f\u3044\u30c9\u30e9\u30b4\u30f3\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002", "sys");
-      return;
-    }
-
     if (isDragon(id)) {
       if (!canSummon(who, id)) {
         if (who === "player") log(`\u300c${card.name}\u300d\u306e\u53ec\u559a\u306b\u306f\u300c\u7adc\u306e\u53ec\u559a\u9663\u300d\u304c\u5fc5\u8981\u3067\u3059\u3002`, "sys");
         return;
+      }
+
+      const summonPayment = await chooseSummonPayment(who, id);
+      if (!card.freeSummon && !summonPayment) {
+        if (who === "player") log("召喚に使えるカードがありません。", "sys");
+        return false;
       }
 
       if (who === "player") {
@@ -234,18 +273,52 @@ export function createGame(ui, { random = Math.random } = {}) {
       }
 
       if (!cancelled) {
-        hand.splice(index, 1);
-        const usedCircle = consumeSummon(who, id);
-        state[who].field.push({ id, banishShieldUsed: false });
+        const usedSummonId = summonPayment?.id ?? null;
+        const removeIndices = [index];
+        if (summonPayment) removeIndices.push(summonPayment.index);
+        removeHandIndices(who, removeIndices);
+
+        if (usedSummonId) getDiscard(state, who).push(usedSummonId);
+
+        const fieldEntry = { id, banishShieldUsed: false };
+        state[who].field.push(fieldEntry);
         ui.queueFieldAnimation(who, id);
-        log(`${who === "player" ? "\u3042\u306a\u305f" : "CPU"}\u306f${usedCircle ? "\u300c\u7adc\u306e\u53ec\u559a\u9663\u300d\u3092\u6d88\u8cbb\u3057\u3066" : ""}\u300c${card.name}\u300d\u3092\u53ec\u559a\uff01`, who === "player" ? "you" : "cpu");
+
+        log(
+          `${who === "player" ? "あなた" : "CPU"}は${usedSummonId ? `「${CARDS[usedSummonId].name}」で` : ""}「${card.name}」を召喚！`,
+          who === "player" ? "you" : "cpu"
+        );
+
+        if (usedSummonId) {
+          await resolveSummonCardEffect(effectContext, who, usedSummonId, fieldEntry);
+        }
+
         if (card.onSummonDamage) {
           combat.damage(who, who === "player" ? "cpu" : "player", card.onSummonDamage);
-          log(`\u300c${card.name}\u300d\u306e\u53ec\u559a\u6642\u52b9\u679c\uff01 ${card.onSummonDamage}\u30c0\u30e1\u30fc\u30b8\u3002`, who === "player" ? "you" : "cpu");
+          log(
+            `「${card.name}」の召喚時効果！ ${card.onSummonDamage}ダメージ。`,
+            who === "player" ? "you" : "cpu"
+          );
         }
       } else {
-        const usedCircle = consumeSummon(who, id);
-        log(`${who === "player" ? "\u3042\u306a\u305f" : "CPU"}\u306e\u53ec\u559a\u306f\u6700\u7d42\u7684\u306b\u7121\u52b9\u3002${usedCircle ? "\u53ec\u559a\u9663\u3060\u3051\u6368\u3066\u672d\u3078\u884c\u304d\u3001" : ""}\u30c9\u30e9\u30b4\u30f3\u306f\u624b\u672d\u306b\u6b8b\u308a\u307e\u3059\u3002`, who === "player" ? "you" : "cpu");
+        if (summonPayment && !CARDS[summonPayment.id].retainOnCounter) {
+          state[who].hand.splice(summonPayment.index, 1);
+          getDiscard(state, who).push(summonPayment.id);
+          log(
+            `${who === "player" ? "あなた" : "CPU"}の召喚は無効。「${CARDS[summonPayment.id].name}」は捨て札へ。ドラゴンは手札に残ります。`,
+            who === "player" ? "you" : "cpu"
+          );
+        } else if (summonPayment) {
+          log(
+            `${who === "player" ? "あなた" : "CPU"}の召喚は無効。「${CARDS[summonPayment.id].name}」とドラゴンは手札に残ります。`,
+            who === "player" ? "you" : "cpu"
+          );
+        } else {
+          log(
+            `${who === "player" ? "あなた" : "CPU"}の召喚は無効。ドラゴンは手札に残ります。`,
+            who === "player" ? "you" : "cpu"
+          );
+        }
       }
 
       if (who === "player") state.playsUsed++;
@@ -309,6 +382,7 @@ export function createGame(ui, { random = Math.random } = {}) {
     cpuTimer = null;
     const openingCpu = state.opening && state.starter === "cpu";
     state.turn = "cpu";
+    expireSummonGuard("cpu");
     ui.render(state);
     await wait(220);
     if (!state || state.epoch !== epoch || state.over) return;
@@ -363,6 +437,7 @@ export function createGame(ui, { random = Math.random } = {}) {
   async function startPlayerTurn() {
     if (state.over) return;
     state.turn = "player";
+    expireSummonGuard("player");
     state.playsUsed = 0;
     const penalty = state.player.limitPenalty || 0;
     state.player.limitPenalty = 0;
