@@ -1,4 +1,4 @@
-import { CARDS, isDragon } from "./cards.js?v=20260929-7";
+import { CARDS, isDragon } from "./cards.js?v=20260929-9";
 import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany, getDeck, getDiscard } from "./deck.js?v=20260929-7";
 import { pickCpuDeck } from "./enemyDecks.js?v=20260929-7";
 import { createEnemyAI } from "./enemyAI.js?v=20260929-7";
@@ -467,6 +467,8 @@ export function createGame(ui, { random = Math.random } = {}) {
     if (state.starter === "cpu") state.turnNo++;
     state.turn = "cpu";
     state.selected = null;
+    state.cpuPlaysUsed = 0;
+    state.cpuPlayLimit = Math.max(0, 2 - (state.cpu.limitPenalty || 0));
     ui.render(state);
     cpuTimer = setTimeout(cpuTurn, delay);
   }
