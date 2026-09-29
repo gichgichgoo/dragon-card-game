@@ -242,7 +242,7 @@ export function createEnemyAI({
       card.threat +
       random() * 1.2;
 
-    if (id === "summon") {
+    if (card.type === "summon") {
       return -20;
     }
 
@@ -376,11 +376,12 @@ export function createEnemyAI({
     }
 
     if (id === "banish") {
+      const targets = opponent.field.filter((entry) => !entry.summonGuard);
       value =
-        !opponent.field.length
+        !targets.length
           ? -7
           : Math.max(
-              ...opponent.field.map(
+              ...targets.map(
                 (x) =>
                   CARDS[x.id].threat
               )
@@ -450,14 +451,19 @@ export function createEnemyAI({
   function discardScore(id) {
     const state = getState();
 
-    if (id === "summon") {
-      return state.cpu.hand.some(
-        (x) =>
-          isDragon(x) &&
-          !CARDS[x].freeSummon
-      )
-        ? 9
-        : 1;
+    if (CARDS[id]?.type === "summon") {
+      const dragons = state.cpu.hand.filter(
+        (x) => isDragon(x) && !CARDS[x].freeSummon
+      );
+
+      if (!dragons.length) return 1;
+
+      const bestDragon = dragons.reduce(
+        (best, current) => CARDS[current].threat > CARDS[best].threat ? current : best,
+        dragons[0]
+      );
+
+      return 5 + summonCardScore(id, bestDragon);
     }
 
     if (
@@ -468,6 +474,48 @@ export function createEnemyAI({
     }
 
     return actionScore(id);
+  }
+
+  function summonCardScore(id, dragonId) {
+    const state = getState();
+    const dragonThreat = CARDS[dragonId]?.threat ?? 0;
+
+    switch (id) {
+      case "summon":
+        return 6;
+      case "bloodSummon":
+        if (state.cpu.hp <= 1) return -20;
+        return state.cpu.counters < 3 ? 9 : 5;
+      case "wisdomSummon":
+        return state.cpuDeck.length ? 7 : 3;
+      case "starSummon":
+        return state.cpuDeck.some((cardId) => isDragon(cardId)) ? 7 : 3;
+      case "guardSummon":
+        return dragonThreat >= 8 ? 10 : 7;
+      case "lifeSummon":
+        return state.cpu.hp <= 2 ? 10 : 4;
+      default:
+        return 4;
+    }
+  }
+
+  function chooseSummonCardIndex(indices, dragonId) {
+    const state = getState();
+    if (!indices.length) return -1;
+
+    let bestIndex = indices[0];
+    let bestScore = -999;
+
+    indices.forEach((handIndex) => {
+      const id = state.cpu.hand[handIndex];
+      const value = summonCardScore(id, dragonId) + random() * 0.2;
+      if (value > bestScore) {
+        bestScore = value;
+        bestIndex = handIndex;
+      }
+    });
+
+    return bestIndex;
   }
 
   function chooseDiscardIndex() {
@@ -605,6 +653,7 @@ export function createEnemyAI({
     chooseFrom,
     chooseActionIndex,
     chooseDiscardIndex,
+    chooseSummonCardIndex,
     discardScore,
     shouldCounter,
     shouldCounterBack,
