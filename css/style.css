@@ -393,3 +393,10 @@ body{min-height:100%;overscroll-behavior:none}
 
 .card.unplayable{opacity:.42;filter:grayscale(.7)}
 .card.unplayable.selected{outline-color:#8f8596}
+
+.guardBadge{
+  position:absolute;right:4px;bottom:4px;
+  padding:2px 4px;border-radius:6px;
+  background:rgba(65,91,132,.92);border:1px solid #a9c8ff;
+  color:#eef6ff;font-size:7px;font-weight:900;line-height:1
+}
