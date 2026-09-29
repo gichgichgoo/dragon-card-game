@@ -820,3 +820,70 @@ body{min-height:100%;overscroll-behavior:none}
 }
 
 .starterBadge,.counterBackBadge{display:none!important}
+
+
+/* Turn-start flash also blocks card input until the intro finishes. */
+.turnStartFlash{
+  inset:0;
+  left:0;
+  top:0;
+  width:auto;
+  min-height:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  transform:none;
+  background:rgba(5,4,8,.12);
+  box-shadow:none;
+}
+.turnStartFlash::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:46%;
+  transform:translate(-50%,-50%);
+  width:min(82vw,360px);
+  height:150px;
+  border-radius:22px;
+  border:1px solid #6f627d;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.09),transparent 48%),
+    linear-gradient(160deg,rgba(31,27,39,.98),rgba(17,15,22,.98));
+  box-shadow:0 28px 80px rgba(0,0,0,.62);
+}
+.turnStartFlash.player,
+.turnStartFlash.cpu{
+  border:0;
+  box-shadow:none;
+}
+.turnStartFlash.player::before{
+  border-color:#8068ac;
+  box-shadow:0 28px 80px rgba(0,0,0,.62),0 0 34px rgba(133,98,196,.16);
+}
+.turnStartFlash.cpu::before{
+  border-color:#8b565a;
+  box-shadow:0 28px 80px rgba(0,0,0,.62),0 0 34px rgba(168,78,86,.14);
+}
+.turnStartFlash.show{
+  animation:turnStartBackdrop .9s ease both;
+}
+.turnStartFlash.show::before{
+  animation:turnStartPanel .9s ease both;
+}
+.turnStartIcon,.turnStartTitle,.turnStartSub{
+  position:relative;
+  z-index:1;
+}
+@keyframes turnStartBackdrop{
+  0%,100%{background:rgba(5,4,8,0)}
+  18%,72%{background:rgba(5,4,8,.20)}
+}
+@keyframes turnStartPanel{
+  0%{opacity:0;transform:translate(-50%,-44%) scale(.72);filter:blur(3px)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(1.06);filter:blur(0)}
+  32%,72%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-54%) scale(.96)}
+}
+@media(max-height:740px){
+  .turnStartFlash::before{top:45%;height:126px}
+}
