@@ -301,12 +301,15 @@ export function createUI() {
     refs.counterFlash.classList.add("show");
   }
 
-  function showOpponentPlay(id, isSummon = false) {
+  function showOpponentPlay(id, isSummon = false, summonId = null) {
     const card = CARDS[id];
+    const summonCard = summonId ? CARDS[summonId] : null;
     refs.counterFlash.classList.remove("show", "back", "play", "dragon", "summon");
     void refs.counterFlash.offsetWidth;
     refs.counterFlashMain.textContent = `${card.icon} ${card.name}`;
-    refs.counterFlashSub.textContent = `${isSummon ? "\u53ec\u559a\uff5c" : "CPU\uff5c"}${card.desc}`;
+    refs.counterFlashSub.textContent = isSummon && summonCard
+      ? `${summonCard.icon} ${summonCard.name}｜${summonCard.desc}`
+      : `${isSummon ? "召喚｜" : "CPU｜"}${card.desc}`;
     refs.counterFlash.classList.add("play");
     if (card.type === "dragon") refs.counterFlash.classList.add("dragon");
     if (card.type === "summon") refs.counterFlash.classList.add("summon");
@@ -314,13 +317,18 @@ export function createUI() {
     return new Promise((resolve) => setTimeout(resolve, 1050));
   }
 
-  function askCounter(id) {
+  function askCounter(id, summonId = null) {
     const state = stateProvider();
     if (state.player.counters <= 0) return Promise.resolve(false);
     const card = CARDS[id];
+    const summonCard = summonId ? CARDS[summonId] : null;
     refs.counterIcon.textContent = card.icon;
-    refs.counterTitle.textContent = `CPU\u304c\u300c${card.name}\u300d\u3092\u4f7f\u7528`;
-    refs.counterDesc.textContent = card.desc;
+    refs.counterTitle.textContent = summonCard
+      ? `CPUが「${summonCard.name}」で「${card.name}」を召喚`
+      : `CPUが「${card.name}」を使用`;
+    refs.counterDesc.textContent = summonCard
+      ? `${summonCard.desc} / ${card.desc}`
+      : card.desc;
     refs.counterRule.textContent = "\ud83d\udcd8\u30921\u3064\u4f7f\u3046\u3068\u3001\u3053\u306e\u30ab\u30fc\u30c9\u3092\u7121\u52b9\u5316\u3067\u304d\u307e\u3059\u3002";
     refs.counterPass.textContent = "\u901a\u3059";
     refs.counterUse.textContent = "\u6253\u3061\u6d88\u3059";
