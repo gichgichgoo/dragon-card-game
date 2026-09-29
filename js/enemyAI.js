@@ -229,6 +229,7 @@ export function createEnemyAI({
 
   function actionScore(id) {
     const state = getState();
+    if (getPlayability && !getPlayability("cpu", id).playable) return -100;
 
     const me = state.cpu;
     const opponent =
