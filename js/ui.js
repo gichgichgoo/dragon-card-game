@@ -52,7 +52,7 @@ export function createUI() {
   function renderHearts(state, who) {
     const meter = who === "player" ? refs.pHearts : refs.cHearts;
     const hp = Math.max(0, Math.min(4, state[who].hp));
-    meter.setAttribute("aria-label", `${who === "player" ? "ããªã" : "CPU"} ã©ã¤ã${hp}`);
+    meter.setAttribute("aria-label", `${who === "player" ? "\u3042\u306a\u305f" : "CPU"} \u30e9\u30a4\u30d5${hp}`);
     [...meter.querySelectorAll(".heart")].forEach((heart, index) => {
       heart.classList.toggle("on", index < hp);
       heart.classList.toggle("off", index >= hp);
@@ -84,7 +84,7 @@ export function createUI() {
   function renderCounters(state, who) {
     const meter = who === "player" ? refs.pCounters : refs.cCounters;
     const count = Math.max(0, Math.min(3, state[who].counters));
-    meter.setAttribute("aria-label", `${who === "player" ? "ããªã" : "CPU"} æã¡æ¶ã${count}`);
+    meter.setAttribute("aria-label", `${who === "player" ? "\u3042\u306a\u305f" : "CPU"} \u6253\u3061\u6d88\u3057${count}`);
     [...meter.querySelectorAll(".counterBook")].forEach((book, index) => {
       book.classList.toggle("bookOn", index < count);
       book.classList.toggle("bookOff", index >= count);
@@ -108,33 +108,33 @@ export function createUI() {
 
     refs.pHand.innerHTML = "";
     state.player.hand.forEach((id, index) => refs.pHand.appendChild(cardElement(id, index, "hand", state.selected === index)));
-    if (!state.player.hand.length) refs.pHand.innerHTML = '<div class="empty">ææ­ãªã</div>';
+    if (!state.player.hand.length) refs.pHand.innerHTML = '<div class="empty">\u624b\u672d\u306a\u3057</div>';
 
     refs.cHand.innerHTML = "";
     state.cpu.hand.forEach(() => {
       const back = document.createElement("div");
       back.className = "cardback";
-      back.textContent = "â¦";
+      back.textContent = "\u2726";
       refs.cHand.appendChild(back);
     });
-    if (!state.cpu.hand.length) refs.cHand.innerHTML = '<div class="empty">ææ­ãªã</div>';
+    if (!state.cpu.hand.length) refs.cHand.innerHTML = '<div class="empty">\u624b\u672d\u306a\u3057</div>';
 
     for (const [element, field] of [[refs.pField, state.player.field], [refs.cField, state.cpu.field]]) {
       element.innerHTML = "";
       field.forEach((entry) => element.appendChild(cardElement(entry.id, -1, "field")));
-      if (!field.length) element.innerHTML = '<div class="empty">é­ç©ãªã</div>';
+      if (!field.length) element.innerHTML = '<div class="empty">\u9b54\u7269\u306a\u3057</div>';
     }
 
     refs.pDiscardCount.textContent = state.playerDiscard.length;
     refs.cDiscardCount.textContent = state.cpuDiscard.length;
     refs.banner.className = `turn ${state.turn === "player" ? "you" : "cpu"}`;
     refs.banner.textContent = state.over
-      ? "ã²ã¼ã çµäº"
+      ? "\u30b2\u30fc\u30e0\u7d42\u4e86"
       : state.turn === "player"
         ? (state.opening && state.starter === "player"
-          ? `ããªãã®ã¿ã¼ã³ãåæ»1ã¿ã¼ã³ç®ãï½ä½¿ç¨ ${state.playsUsed}/${state.playLimit}`
-          : `ããªãã®ã¿ã¼ã³ï½ä½¿ç¨ ${state.playsUsed}/${state.playLimit}`)
-        : (state.opening && state.starter === "cpu" ? "CPUã®ã¿ã¼ã³ãåæ»1ã¿ã¼ã³ç®ã" : "CPUã®ã¿ã¼ã³");
+          ? `\u3042\u306a\u305f\u306e\u30bf\u30fc\u30f3\u3010\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u3011\uff5c\u4f7f\u7528 ${state.playsUsed}/${state.playLimit}`
+          : `\u3042\u306a\u305f\u306e\u30bf\u30fc\u30f3\uff5c\u4f7f\u7528 ${state.playsUsed}/${state.playLimit}`)
+        : (state.opening && state.starter === "cpu" ? "CPU\u306e\u30bf\u30fc\u30f3\u3010\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u3011" : "CPU\u306e\u30bf\u30fc\u30f3");
 
     const valid = state.selected !== null && state.player.hand[state.selected];
     const selectedId = valid ? state.player.hand[state.selected] : null;
@@ -142,20 +142,20 @@ export function createUI() {
     const needsCircle = isDragon(selectedId) && !canSummonFromUi(state, "player", selectedId);
     refs.play.disabled = state.over || state.turn !== "player" || !valid || (!state.discardMode && (badSummon || needsCircle));
     refs.end.disabled = state.over || state.turn !== "player" || state.discardMode;
-    refs.play.textContent = state.discardMode ? "ãã®ã«ã¼ããæ¨ã¦ã" : isDragon(selectedId) ? "ãã©ã´ã³ãå¬å" : "ã«ã¼ããä½¿ã";
+    refs.play.textContent = state.discardMode ? "\u3053\u306e\u30ab\u30fc\u30c9\u3092\u6368\u3066\u308b" : isDragon(selectedId) ? "\u30c9\u30e9\u30b4\u30f3\u3092\u53ec\u559a" : "\u30ab\u30fc\u30c9\u3092\u4f7f\u3046";
     refs.hint.textContent = state.discardMode
-      ? `ææ­${state.player.hand.length}æã5æã¾ã§æ¨ã¦ã¦ãã ããã`
+      ? `\u624b\u672d${state.player.hand.length}\u679a\u30025\u679a\u307e\u3067\u6368\u3066\u3066\u304f\u3060\u3055\u3044\u3002`
       : state.turn === "player" && state.playsUsed >= state.playLimit
-        ? "ãã®ã¿ã¼ã³ã«ä½¿ããææ°ãä½¿ãåãã¾ããã"
+        ? "\u3053\u306e\u30bf\u30fc\u30f3\u306b\u4f7f\u3048\u308b\u679a\u6570\u3092\u4f7f\u3044\u5207\u308a\u307e\u3057\u305f\u3002"
         : state.turn !== "player"
-          ? "CPUãè¡åä¸­â¦"
+          ? "CPU\u304c\u884c\u52d5\u4e2d\u2026"
           : selectedId === "summon"
-            ? "å¬åé£ã¯ç´æ¥ä½¿ãã¾ãããå¬åããããã©ã´ã³ãã¿ãããã¾ãã"
+            ? "\u53ec\u559a\u9663\u306f\u76f4\u63a5\u4f7f\u3044\u307e\u305b\u3093\u3002\u53ec\u559a\u3057\u305f\u3044\u30c9\u30e9\u30b4\u30f3\u3092\u30bf\u30c3\u30d7\u3057\u307e\u3059\u3002"
             : needsCircle
-              ? "ãã®ãã©ã´ã³ã«ã¯ãç«ã®å¬åé£ããå¿è¦ã§ãã"
+              ? "\u3053\u306e\u30c9\u30e9\u30b4\u30f3\u306b\u306f\u300c\u7adc\u306e\u53ec\u559a\u9663\u300d\u304c\u5fc5\u8981\u3067\u3059\u3002"
               : isDragon(selectedId)
-                ? (CARDS[selectedId].freeSummon ? "å¬åé£ãªãã§å ´ã«åºãã¾ãã" : "å¬åé£ã1ææ¶è²»ãã¦å ´ã«åºãã¾ãã")
-                : "ã«ã¼ããã¿ãã âãã«ã¼ããä½¿ãã";
+                ? (CARDS[selectedId].freeSummon ? "\u53ec\u559a\u9663\u306a\u3057\u3067\u5834\u306b\u51fa\u305b\u307e\u3059\u3002" : "\u53ec\u559a\u9663\u30921\u679a\u6d88\u8cbb\u3057\u3066\u5834\u306b\u51fa\u3057\u307e\u3059\u3002")
+                : "\u30ab\u30fc\u30c9\u3092\u30bf\u30c3\u30d7 \u2192\u300c\u30ab\u30fc\u30c9\u3092\u4f7f\u3046\u300d";
 
     flushBoardAnimations();
   }
@@ -163,10 +163,10 @@ export function createUI() {
   function openDiscard(who) {
     const state = stateProvider();
     const pile = who === "player" ? state.playerDiscard : state.cpuDiscard;
-    refs.discardTitle.textContent = `${who === "player" ? "ããªã" : "CPU"}ã®æ¨ã¦æ­ï¼${pile.length}æï¼`;
+    refs.discardTitle.textContent = `${who === "player" ? "\u3042\u306a\u305f" : "CPU"}\u306e\u6368\u3066\u672d\uff08${pile.length}\u679a\uff09`;
     refs.discardGrid.innerHTML = "";
     if (!pile.length) {
-      refs.discardGrid.innerHTML = '<div class="empty">æ¨ã¦æ­ã¯ããã¾ãã</div>';
+      refs.discardGrid.innerHTML = '<div class="empty">\u6368\u3066\u672d\u306f\u3042\u308a\u307e\u305b\u3093</div>';
     } else {
       [...pile].reverse().forEach((id) => {
         const card = CARDS[id];
@@ -195,7 +195,7 @@ export function createUI() {
     const b = handNode.getBoundingClientRect();
     const ghost = document.createElement("div");
     ghost.className = "motionCard back";
-    ghost.textContent = "â¦";
+    ghost.textContent = "\u2726";
     document.body.appendChild(ghost);
     const sx = a.left + a.width / 2 - 24, sy = a.top + a.height / 2 - 34;
     const tx = Math.min(b.right - 55, b.left + b.width * 0.74) - 24, ty = b.top + b.height / 2 - 34;
@@ -275,7 +275,7 @@ export function createUI() {
   function showCounterFlash(kind, sub = "") {
     refs.counterFlash.classList.remove("show", "back", "play", "dragon", "summon");
     void refs.counterFlash.offsetWidth;
-    refs.counterFlashMain.textContent = kind === "back" ? "æã¡æ¶ãè¿ãï¼" : "æã¡æ¶ãï¼";
+    refs.counterFlashMain.textContent = kind === "back" ? "\u6253\u3061\u6d88\u3057\u8fd4\u3057\uff01" : "\u6253\u3061\u6d88\u3057\uff01";
     refs.counterFlashSub.textContent = sub;
     if (kind === "back") refs.counterFlash.classList.add("back");
     refs.counterFlash.classList.add("show");
@@ -286,7 +286,7 @@ export function createUI() {
     refs.counterFlash.classList.remove("show", "back", "play", "dragon", "summon");
     void refs.counterFlash.offsetWidth;
     refs.counterFlashMain.textContent = `${card.icon} ${card.name}`;
-    refs.counterFlashSub.textContent = `${isSummon ? "å¬åï½" : "CPUï½"}${card.desc}`;
+    refs.counterFlashSub.textContent = `${isSummon ? "\u53ec\u559a\uff5c" : "CPU\uff5c"}${card.desc}`;
     refs.counterFlash.classList.add("play");
     if (card.type === "dragon") refs.counterFlash.classList.add("dragon");
     if (card.type === "summon") refs.counterFlash.classList.add("summon");
@@ -299,11 +299,11 @@ export function createUI() {
     if (state.player.counters <= 0) return Promise.resolve(false);
     const card = CARDS[id];
     refs.counterIcon.textContent = card.icon;
-    refs.counterTitle.textContent = `CPUãã${card.name}ããä½¿ç¨`;
+    refs.counterTitle.textContent = `CPU\u304c\u300c${card.name}\u300d\u3092\u4f7f\u7528`;
     refs.counterDesc.textContent = card.desc;
-    refs.counterRule.textContent = "ðã1ã¤ä½¿ãã¨ããã®ã«ã¼ããç¡å¹åã§ãã¾ãã";
-    refs.counterPass.textContent = "éã";
-    refs.counterUse.textContent = "æã¡æ¶ã";
+    refs.counterRule.textContent = "\ud83d\udcd8\u30921\u3064\u4f7f\u3046\u3068\u3001\u3053\u306e\u30ab\u30fc\u30c9\u3092\u7121\u52b9\u5316\u3067\u304d\u307e\u3059\u3002";
+    refs.counterPass.textContent = "\u901a\u3059";
+    refs.counterUse.textContent = "\u6253\u3061\u6d88\u3059";
     refs.counter.classList.add("show");
     return new Promise((resolve) => { counterResolver = resolve; });
   }
@@ -312,12 +312,12 @@ export function createUI() {
     const state = stateProvider();
     if (state.player.counters < 2) return Promise.resolve(false);
     const card = CARDS[id];
-    refs.counterIcon.textContent = "ð";
-    refs.counterTitle.textContent = "CPUãæã¡æ¶ãã¾ãã";
-    refs.counterDesc.textContent = `ã${card.name}ããéããããæã¡æ¶ãè¿ãããã¾ããï¼`;
-    refs.counterRule.textContent = "ðã2ã¤ä½¿ãã¨CPUã®æã¡æ¶ããç¡å¹åã§ãã¾ããããä»¥ä¸ã®æã¡æ¶ãè¿ãã¯ã§ãã¾ããã";
-    refs.counterPass.textContent = "ããããã";
-    refs.counterUse.textContent = "2ã¤ä½¿ã£ã¦è¿ã";
+    refs.counterIcon.textContent = "\ud83d\udcd8";
+    refs.counterTitle.textContent = "CPU\u304c\u6253\u3061\u6d88\u3057\u307e\u3057\u305f";
+    refs.counterDesc.textContent = `\u300c${card.name}\u300d\u3092\u901a\u3059\u305f\u3081\u3001\u6253\u3061\u6d88\u3057\u8fd4\u3057\u3092\u3057\u307e\u3059\u304b\uff1f`;
+    refs.counterRule.textContent = "\ud83d\udcd8\u30922\u3064\u4f7f\u3046\u3068CPU\u306e\u6253\u3061\u6d88\u3057\u3092\u7121\u52b9\u5316\u3067\u304d\u307e\u3059\u3002\u3053\u308c\u4ee5\u4e0a\u306e\u6253\u3061\u6d88\u3057\u8fd4\u3057\u306f\u3067\u304d\u307e\u305b\u3093\u3002";
+    refs.counterPass.textContent = "\u3042\u304d\u3089\u3081\u308b";
+    refs.counterUse.textContent = "2\u3064\u4f7f\u3063\u3066\u8fd4\u3059";
     refs.counter.classList.add("show");
     return new Promise((resolve) => { counterResolver = resolve; });
   }
@@ -396,7 +396,7 @@ export function createUI() {
     refs.tacticalBuildCount.textContent = `${tierTotal("tactical")}/${BUILD_LIMITS.tactical}`;
     refs.powerfulBuildCount.textContent = `${tierTotal("powerful")}/${BUILD_LIMITS.powerful}`;
     refs.startGame.disabled = !setupReady();
-    refs.setupHint.textContent = setupReady() ? "16æå®æãã²ã¼ã ãéå§ã§ãã¾ãã" : "ãã©ã´ã³3ã»åºæ¬5ã»æ¦è¡4ã»å¼·å2ãé¸ãã§ãã ããã";
+    refs.setupHint.textContent = setupReady() ? "16\u679a\u5b8c\u6210\u3002\u30b2\u30fc\u30e0\u3092\u958b\u59cb\u3067\u304d\u307e\u3059\u3002" : "\u30c9\u30e9\u30b4\u30f33\u30fb\u57fa\u672c5\u30fb\u6226\u88534\u30fb\u5f37\u529b2\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002";
     document.querySelectorAll(".spellPick").forEach((row) => {
       const tier = row.dataset.tier;
       const id = row.dataset.id;
@@ -416,7 +416,7 @@ export function createUI() {
       row.className = "spellPick";
       row.dataset.tier = tier;
       row.dataset.id = id;
-      row.innerHTML = `<div class="spellPickInfo"><div class="spellPickTop"><span class="spellPickIcon">${card.icon}</span><span class="spellPickName">${card.name}</span></div><div class="spellPickDesc">${card.desc}</div></div><div class="spellCounter"><button type="button" class="spellMinus">â</button><div class="spellCount">0</div><button type="button" class="spellPlus">ï¼</button></div>`;
+      row.innerHTML = `<div class="spellPickInfo"><div class="spellPickTop"><span class="spellPickIcon">${card.icon}</span><span class="spellPickName">${card.name}</span></div><div class="spellPickDesc">${card.desc}</div></div><div class="spellCounter"><button type="button" class="spellMinus">\u2212</button><div class="spellCount">0</div><button type="button" class="spellPlus">\uff0b</button></div>`;
       row.querySelector(".spellMinus").onclick = () => {
         const count = setupSpells[tier][id] ?? 0;
         if (count > 0) setupSpells[tier][id] = count - 1;
@@ -441,7 +441,7 @@ export function createUI() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "dragonPick";
-      const cost = card.freeSummon ? "å¬åé£ä¸è¦" : "å¬åé£1æ";
+      const cost = card.freeSummon ? "\u53ec\u559a\u9663\u4e0d\u8981" : "\u53ec\u559a\u96631\u679a";
       button.innerHTML = `<div class="dpTop"><span class="dpIcon">${card.icon}</span><span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div>`;
       button.onclick = () => {
         const current = setupSelection.indexOf(id);
