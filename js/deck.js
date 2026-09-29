@@ -12,6 +12,7 @@ export function shuffle(array, random = Math.random) {
 export function cloneBuild(build) {
   return {
     dragons: [...(build.dragons || [])],
+    summon: { ...(build.summon || {}) },
     basic: { ...(build.basic || {}) },
     tactical: { ...(build.tactical || {}) },
     powerful: { ...(build.powerful || {}) },
@@ -19,13 +20,13 @@ export function cloneBuild(build) {
 }
 
 export function buildDeck(build, random = Math.random) {
-  const cards = ["summon", "summon"];
+  const cards = [];
 
   for (const dragonId of build.dragons || []) {
     cards.push(dragonId);
   }
 
-  for (const tier of ["basic", "tactical", "powerful"]) {
+  for (const tier of ["summon", "basic", "tactical", "powerful"]) {
     const tierCards = build[tier] || {};
 
     for (const [id, count] of Object.entries(tierCards)) {
