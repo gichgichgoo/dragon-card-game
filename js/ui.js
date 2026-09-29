@@ -477,7 +477,7 @@ export function createUI() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "dragonPick";
-      const cost = card.freeSummon ? "\u53ec\u559a\u9663\u4e0d\u8981" : "\u53ec\u559a\u96631\u679a";
+      const cost = card.freeSummon ? "召喚カード不要" : "召喚カード1枚";
       const art = card.image ? `<div class="dpArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div>` : "";
       button.innerHTML = `${art}<div class="dpTop"><span class="dpIcon">${card.icon}</span><span class="dpName">${card.name}</span></div><div class="dpDesc">${card.desc}</div><div class="dpCost">${cost}</div>`;
       button.onclick = () => {
