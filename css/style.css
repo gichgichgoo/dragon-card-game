@@ -400,3 +400,124 @@ body{min-height:100%;overscroll-behavior:none}
   background:rgba(65,91,132,.92);border:1px solid #a9c8ff;
   color:#eef6ff;font-size:7px;font-weight:900;line-height:1
 }
+
+
+/* Dragon artwork v1 */
+.card.hasArt{
+  overflow:hidden;
+  padding:0;
+  background:#151218;
+  border-color:#8b7657;
+}
+.card.hasArt .cardArt{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background:#151218;
+}
+.card.hasArt .cardArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.card.hasArt .cardArtShade{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(180deg,rgba(6,7,10,.04) 0%,rgba(7,7,10,.08) 30%,rgba(10,8,12,.58) 62%,rgba(10,8,12,.96) 100%),
+    linear-gradient(90deg,rgba(0,0,0,.12),transparent 38%,rgba(0,0,0,.08));
+}
+.card.hasArt .cardInfo{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:10px;
+  pointer-events:none;
+}
+.card.hasArt .cardText{min-width:0}
+.card.hasArt .icon{
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:grid;
+  place-items:center;
+  width:27px;
+  height:27px;
+  border-radius:999px;
+  background:rgba(12,10,15,.72);
+  border:1px solid rgba(255,255,255,.24);
+  box-shadow:0 2px 8px rgba(0,0,0,.45);
+  font-size:15px;
+}
+.card.hasArt .title{
+  margin-top:0;
+  color:#fff;
+  text-shadow:0 2px 5px #000,0 0 8px rgba(0,0,0,.8);
+}
+.card.hasArt .type{
+  color:#ded6e4;
+  text-shadow:0 1px 3px #000;
+}
+.card.hasArt .desc{
+  color:#fff;
+  text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.9);
+}
+.card.hasArt .guardBadge{z-index:4}
+
+.field .card.hasArt .cardInfo{padding:5px}
+.field .card.hasArt .icon{
+  top:4px;left:4px;
+  width:18px;height:18px;
+  font-size:10px;
+}
+.field .card.hasArt .type{display:none}
+.field .card.hasArt .title{
+  margin:0;
+  font-size:9px;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.playerZone .hand .card.hasArt .cardInfo{padding:7px}
+.playerZone .hand .card.hasArt .icon{
+  top:6px;left:6px;
+  width:22px;height:22px;
+  font-size:12px;
+}
+.playerZone .hand .card.hasArt .title{margin-top:0}
+.playerZone .hand .card.hasArt .desc{
+  margin-top:3px;
+  -webkit-line-clamp:2;
+}
+
+.dpArt{
+  height:64px;
+  margin:-2px -2px 7px;
+  overflow:hidden;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.13);
+  background:#111;
+}
+.dpArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.dragonPick:has(.dpArt){
+  background:linear-gradient(180deg,#211b25,#17141b);
+  border-color:#685641;
+}
+.dragonPick:has(.dpArt).selected{
+  border-color:#e0c180;
+  box-shadow:inset 0 0 0 1px #a7844d,0 0 16px rgba(218,181,111,.12);
+}
+@media(max-height:740px){
+  .dpArt{height:45px;margin-bottom:5px}
+}
