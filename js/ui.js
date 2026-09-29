@@ -107,8 +107,17 @@ export function createUI() {
     refs.turnNo.textContent = state.turnNo;
 
     refs.pHand.innerHTML = "";
-    state.player.hand.forEach((id, index) => refs.pHand.appendChild(cardElement(id, index, "hand", state.selected === index)));
-    if (!state.player.hand.length) refs.pHand.innerHTML = '<div class="empty">\u624b\u672d\u306a\u3057</div>';
+    state.player.hand.forEach((id, index) => {
+      const availability = handlers.getPlayability?.("player", id) ?? { playable: true, reason: "" };
+      const el = cardElement(id, index, "hand", state.selected === index);
+      if (!availability.playable && !state.discardMode) {
+        el.classList.add("unplayable");
+        el.setAttribute("aria-disabled", "true");
+        el.title = availability.reason;
+      }
+      refs.pHand.appendChild(el);
+    });
+    if (!state.player.hand.length) refs.pHand.innerHTML = '<div class="empty">手札なし</div>';
 
     refs.cHand.innerHTML = "";
     state.cpu.hand.forEach(() => {
@@ -138,24 +147,35 @@ export function createUI() {
 
     const valid = state.selected !== null && state.player.hand[state.selected];
     const selectedId = valid ? state.player.hand[state.selected] : null;
-    const badSummon = selectedId === "summon";
-    const needsCircle = isDragon(selectedId) && !canSummonFromUi(state, "player", selectedId);
-    refs.play.disabled = state.over || state.turn !== "player" || !valid || (!state.discardMode && (badSummon || needsCircle));
+    const availability = valid
+      ? (handlers.getPlayability?.("player", selectedId) ?? { playable: true, reason: "" })
+      : { playable: false, reason: "" };
+
+    refs.play.disabled =
+      state.over ||
+      state.turn !== "player" ||
+      !valid ||
+      (!state.discardMode && !availability.playable);
+
     refs.end.disabled = state.over || state.turn !== "player" || state.discardMode;
-    refs.play.textContent = state.discardMode ? "\u3053\u306e\u30ab\u30fc\u30c9\u3092\u6368\u3066\u308b" : isDragon(selectedId) ? "\u30c9\u30e9\u30b4\u30f3\u3092\u53ec\u559a" : "\u30ab\u30fc\u30c9\u3092\u4f7f\u3046";
+
+    refs.play.textContent = state.discardMode
+      ? "このカードを捨てる"
+      : isDragon(selectedId)
+        ? "ドラゴンを召喚"
+        : "カードを使う";
+
     refs.hint.textContent = state.discardMode
-      ? `\u624b\u672d${state.player.hand.length}\u679a\u30025\u679a\u307e\u3067\u6368\u3066\u3066\u304f\u3060\u3055\u3044\u3002`
+      ? `手札${state.player.hand.length}枚。5枚まで捨ててください。`
       : state.turn === "player" && state.playsUsed >= state.playLimit
-        ? "\u3053\u306e\u30bf\u30fc\u30f3\u306b\u4f7f\u3048\u308b\u679a\u6570\u3092\u4f7f\u3044\u5207\u308a\u307e\u3057\u305f\u3002"
+        ? "このターンに使える枚数を使い切りました。"
         : state.turn !== "player"
-          ? "CPU\u304c\u884c\u52d5\u4e2d\u2026"
-          : selectedId === "summon"
-            ? "\u53ec\u559a\u9663\u306f\u76f4\u63a5\u4f7f\u3044\u307e\u305b\u3093\u3002\u53ec\u559a\u3057\u305f\u3044\u30c9\u30e9\u30b4\u30f3\u3092\u30bf\u30c3\u30d7\u3057\u307e\u3059\u3002"
-            : needsCircle
-              ? "\u3053\u306e\u30c9\u30e9\u30b4\u30f3\u306b\u306f\u300c\u7adc\u306e\u53ec\u559a\u9663\u300d\u304c\u5fc5\u8981\u3067\u3059\u3002"
-              : isDragon(selectedId)
-                ? (CARDS[selectedId].freeSummon ? "\u53ec\u559a\u9663\u306a\u3057\u3067\u5834\u306b\u51fa\u305b\u307e\u3059\u3002" : "\u53ec\u559a\u9663\u30921\u679a\u6d88\u8cbb\u3057\u3066\u5834\u306b\u51fa\u3057\u307e\u3059\u3002")
-                : "\u30ab\u30fc\u30c9\u3092\u30bf\u30c3\u30d7 \u2192\u300c\u30ab\u30fc\u30c9\u3092\u4f7f\u3046\u300d";
+          ? "CPUが行動中…"
+          : valid && !availability.playable
+            ? availability.reason
+            : isDragon(selectedId)
+              ? (CARDS[selectedId].freeSummon ? "召喚陣なしで場に出せます。" : "召喚陣を1枚消費して場に出します。")
+              : "カードをタップ →「カードを使う」";
 
     flushBoardAnimations();
   }
