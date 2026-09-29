@@ -390,3 +390,6 @@ body{min-height:100%;overscroll-behavior:none}
   .spellPick{padding:5px 7px}
   .spellPickDesc{line-height:1.25}
 }
+
+.card.unplayable{opacity:.42;filter:grayscale(.7)}
+.card.unplayable.selected{outline-color:#8f8596}
