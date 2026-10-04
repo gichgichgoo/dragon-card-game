@@ -1,4 +1,4 @@
-import { CARDS, isDragon } from "./cards.js?v=20260929-11";
+import { CARDS, isDragon } from "./cards.js?v=20261005-1";
 import { buildDeck, cloneBuild, createSideState, drawCard, drawCards as drawMany, getDeck, getDiscard } from "./deck.js?v=20260929-7";
 import { pickCpuDeck } from "./enemyDecks.js?v=20260929-7";
 import { createEnemyAI } from "./enemyAI.js?v=20260929-7";
