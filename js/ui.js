@@ -28,6 +28,77 @@ export function createUI() {
   let setupSelection = [];
   let setupSpells = { summon: {}, basic: {}, tactical: {}, powerful: {} };
   let setupDifficulty = "normal";
+  const DECK_STORAGE_KEY = "dragon-duel:last-deck:v1";
+
+  function emptySpellBuild() {
+    return { summon: {}, basic: {}, tactical: {}, powerful: {} };
+  }
+
+  function normalizeCounts(source, allowedIds) {
+    const out = {};
+    for (const id of allowedIds) {
+      const raw = Number(source?.[id] ?? 0);
+      const count = Number.isFinite(raw) ? Math.max(0, Math.floor(raw)) : 0;
+      if (count > 0) out[id] = count;
+    }
+    return out;
+  }
+
+  function isSavedBuildValid(build) {
+    if (!build || !Array.isArray(build.dragons)) return false;
+    const dragons = [...new Set(build.dragons.filter((id) => DRAGON_POOL.includes(id)))];
+    if (dragons.length !== BUILD_LIMITS.dragons) return false;
+
+    const summon = normalizeCounts(build.summon, SUMMON_POOL);
+    const basic = normalizeCounts(build.basic, SPELL_POOLS.basic);
+    const tactical = normalizeCounts(build.tactical, SPELL_POOLS.tactical);
+    const powerful = normalizeCounts(build.powerful, SPELL_POOLS.powerful);
+
+    const total = (obj) => Object.values(obj).reduce((sum, count) => sum + count, 0);
+    return total(summon) === BUILD_LIMITS.summon
+      && total(basic) === BUILD_LIMITS.basic
+      && total(tactical) === BUILD_LIMITS.tactical
+      && total(powerful) === BUILD_LIMITS.powerful;
+  }
+
+  function loadSavedSetup() {
+    try {
+      const raw = localStorage.getItem(DECK_STORAGE_KEY);
+      if (!raw) return null;
+      const saved = JSON.parse(raw);
+      if (!isSavedBuildValid(saved?.build)) return null;
+
+      const difficulty = ["easy", "normal", "hard"].includes(saved.difficulty)
+        ? saved.difficulty
+        : "normal";
+
+      return {
+        build: {
+          dragons: [...new Set(saved.build.dragons.filter((id) => DRAGON_POOL.includes(id)))],
+          summon: normalizeCounts(saved.build.summon, SUMMON_POOL),
+          basic: normalizeCounts(saved.build.basic, SPELL_POOLS.basic),
+          tactical: normalizeCounts(saved.build.tactical, SPELL_POOLS.tactical),
+          powerful: normalizeCounts(saved.build.powerful, SPELL_POOLS.powerful),
+        },
+        difficulty,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function saveCurrentSetup() {
+    if (!setupReady()) return;
+    try {
+      localStorage.setItem(DECK_STORAGE_KEY, JSON.stringify({
+        build: currentBuild(),
+        difficulty: setupDifficulty,
+      }));
+    } catch {
+      // Storage can be unavailable in some private browsing environments.
+    }
+  }
+
   let pendingDrawAnimations = [];
   let pendingFieldAnimations = [];
   let animationFlushScheduled = false;
@@ -548,9 +619,17 @@ export function createUI() {
   }
 
   function openSetup() {
-    setupSelection = [];
-    setupSpells = { summon: {}, basic: {}, tactical: {}, powerful: {} };
-    setupDifficulty = "normal";
+    const saved = loadSavedSetup();
+    setupSelection = saved ? [...saved.build.dragons] : [];
+    setupSpells = saved
+      ? {
+          summon: { ...saved.build.summon },
+          basic: { ...saved.build.basic },
+          tactical: { ...saved.build.tactical },
+          powerful: { ...saved.build.powerful },
+        }
+      : emptySpellBuild();
+    setupDifficulty = saved?.difficulty ?? "normal";
     refs.setupGrid.innerHTML = "";
     DRAGON_POOL.forEach((id) => {
       const card = CARDS[id];
@@ -577,8 +656,12 @@ export function createUI() {
     buildSpellSetup("basic", SPELL_POOLS.basic, refs.basicGrid);
     buildSpellSetup("tactical", SPELL_POOLS.tactical, refs.tacticalGrid);
     buildSpellSetup("powerful", SPELL_POOLS.powerful, refs.powerfulGrid);
+    [...refs.setupGrid.children].forEach((el, index) => {
+      el.classList.toggle("selected", setupSelection.includes(DRAGON_POOL[index]));
+    });
     refreshDifficultyButtons();
     refreshSetup();
+    if (saved) refs.setupHint.textContent = "前回のデッキを復元しました。変更せずそのまま開始できます。";
     refs.setup.classList.add("show");
   }
 
@@ -615,6 +698,7 @@ export function createUI() {
     refs.diffHard.onclick = () => { setupDifficulty = "hard"; refreshDifficultyButtons(); };
     refs.startGame.onclick = () => {
       if (!setupReady()) return;
+      saveCurrentSetup();
       handlers.startGame?.(currentBuild(), setupDifficulty);
     };
   }
