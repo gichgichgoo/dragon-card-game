@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261005-1";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261005-2";
 
 const $ = (id) => document.getElementById(id);
 
