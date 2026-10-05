@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261005-2";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261006-2";
 
 const $ = (id) => document.getElementById(id);
 
@@ -333,18 +333,33 @@ export function createUI() {
   function showTurnStart(who, limit, isOpeningFirst = false) {
     const icon = who === "player" ? "🧙" : "🤖";
     const title = who === "player" ? "あなたのターン" : "CPUのターン";
-    refs.turnStartFlash.classList.remove("show", "player", "cpu");
+    const flash = refs.turnStartFlash;
+
     refs.turnStartIcon.textContent = icon;
     refs.turnStartTitle.textContent = isOpeningFirst ? `${title}　🥇 先攻` : title;
     refs.turnStartSub.textContent = `🃏 使用可能 ${limit}枚`;
-    refs.turnStartFlash.classList.add(who === "player" ? "player" : "cpu");
-    void refs.turnStartFlash.offsetWidth;
-    refs.turnStartFlash.classList.add("show");
+
+    flash.classList.remove("show", "player", "cpu");
+    flash.classList.add(who === "player" ? "player" : "cpu");
+
+    flash.style.display = "flex";
+    flash.style.opacity = "1";
+    flash.style.visibility = "visible";
+    flash.style.pointerEvents = "auto";
+    flash.style.zIndex = "999";
+
+    void flash.offsetWidth;
+    flash.classList.add("show");
+
     return new Promise((resolve) => {
       setTimeout(() => {
-        refs.turnStartFlash.classList.remove("show");
+        flash.classList.remove("show");
+        flash.style.opacity = "0";
+        flash.style.visibility = "hidden";
+        flash.style.pointerEvents = "none";
+        setTimeout(() => { flash.style.display = ""; }, 30);
         resolve();
-      }, 900);
+      }, 1050);
     });
   }
 
