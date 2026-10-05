@@ -887,3 +887,10 @@ body{min-height:100%;overscroll-behavior:none}
 @media(max-height:740px){
   .turnStartFlash::before{top:45%;height:126px}
 }
+
+/* Ensure turn-start overlay is visible when active. */
+.turnStartFlash.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
