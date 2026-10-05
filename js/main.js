@@ -1,4 +1,4 @@
-import { createUI } from "./ui.js?v=20261005-1";
+import { createUI } from "./ui.js?v=20261005-2";
 import { createGame } from "./game.js?v=20261005-1";
 
 const ui = createUI();
