@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261006-2";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261006-6";
 
 const $ = (id) => document.getElementById(id);
 
@@ -347,12 +347,56 @@ export function createUI() {
     const handNode = who === "player" ? refs.pHand : refs.cHand;
     const fieldNode = who === "player" ? refs.pField : refs.cField;
     if (!handNode || !fieldNode) return;
+
     const cards = fieldNode.querySelectorAll(".card");
     const target = cards[cards.length - 1];
     if (!target) return;
-    const a = handNode.getBoundingClientRect();
-    const b = target.getBoundingClientRect();
+
     const card = CARDS[id];
+    const targetRect = target.getBoundingClientRect();
+
+    if (card?.type === "dragon") {
+      const fx = document.createElement("div");
+      fx.className = "dragonSummonFx";
+
+      const visual = card.image
+        ? `<div class="dragonSummonArt"><img src="${card.image}" alt="${card.name}" style="object-position:${card.artPosition ?? "50% 50%"}"></div>`
+        : `<div class="dragonSummonIcon">${card.icon}</div>`;
+
+      fx.innerHTML = `
+        <div class="dragonSummonBackdrop"></div>
+        <div class="dragonSummonAura"></div>
+        <div class="dragonSummonVisual">${visual}</div>
+        <div class="dragonSummonName">${card.name}</div>
+      `;
+      document.body.appendChild(fx);
+
+      const visualNode = fx.querySelector(".dragonSummonVisual");
+      const visualRect = visualNode.getBoundingClientRect();
+      const dx = targetRect.left + targetRect.width / 2 - (visualRect.left + visualRect.width / 2);
+      const dy = targetRect.top + targetRect.height / 2 - (visualRect.top + visualRect.height / 2);
+      const endScale = Math.max(.22, Math.min(.42, targetRect.width / Math.max(1, visualRect.width)));
+
+      const anim = visualNode.animate([
+        { transform: "translate(0,18px) scale(.45)", opacity: 0, filter: "brightness(2.4)" },
+        { offset: .18, transform: "translate(0,-8px) scale(1.08)", opacity: 1, filter: "brightness(1.65)" },
+        { offset: .56, transform: "translate(0,0) scale(1)", opacity: 1, filter: "brightness(1)" },
+        { offset: .74, transform: "translate(0,0) scale(1)", opacity: 1, filter: "brightness(1)" },
+        { transform: `translate(${dx}px,${dy}px) scale(${endScale})`, opacity: .15, filter: "brightness(1.4)" }
+      ], { duration: 980, easing: "cubic-bezier(.18,.78,.2,1)", fill: "forwards" });
+
+      anim.onfinish = () => {
+        fx.remove();
+        target.classList.remove("fieldLand");
+        void target.offsetWidth;
+        target.classList.add("fieldLand", "summonArrival");
+        setTimeout(() => target.classList.remove("summonArrival"), 650);
+      };
+      return;
+    }
+
+    const a = handNode.getBoundingClientRect();
+    const b = targetRect;
     const ghost = document.createElement("div");
     ghost.className = `motionCard face ${card.type === "dragon" ? "dragon" : ""}`;
     if (card.image) {
@@ -379,7 +423,6 @@ export function createUI() {
       target.classList.remove("fieldLand"); void target.offsetWidth; target.classList.add("fieldLand");
     };
   }
-
   function flushBoardAnimations() {
     if (animationFlushScheduled) return;
     animationFlushScheduled = true;
