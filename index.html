@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/app-icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/app-icon.svg">
-  <link rel="stylesheet" href="./css/style.css?v=20261008-pwa1">
+  <link rel="stylesheet" href="./css/style.css?v=20261008-enemy1">
 </head>
 <body>
 
@@ -93,6 +93,17 @@
     <div class="modalActions"><button id="startGameBtn" class="primary" type="button" disabled>このデッキで開始</button></div>
   </div>
 </div>
+
+<div id="opponentRevealModal" class="modal opponentRevealModal">
+  <div class="modalBox opponentRevealBox">
+    <div class="opponentRevealEyebrow">ENEMY DRAGONS</div>
+    <h2>対戦相手のドラゴン</h2>
+    <p class="subinfo">相手デッキに入っているドラゴンの種類だけ公開されます。</p>
+    <div id="opponentDragonGrid" class="opponentDragonGrid"></div>
+    <div class="modalActions"><button id="beginBattleBtn" class="primary" type="button">戦闘開始</button></div>
+  </div>
+</div>
+
 <div id="counterFlash" class="counterFlash"><span id="counterFlashMain">打ち消し！</span><span id="counterFlashSub" class="sub"></span></div>
 
 <div id="logModal" class="modal">
@@ -163,6 +174,6 @@
 </div>
 <div id="selectModal" class="modal"><div class="modalBox"><h2 id="selectTitle">カードを選択</h2><p id="selectDesc"></p><div id="selectCards" class="hand" style="max-height:58vh;overflow:auto;flex-wrap:wrap"></div></div></div>
 <div id="resultModal" class="modal"><div class="modalBox"><div id="resultIcon" class="bigIcon">🏆</div><h2 id="resultTitle">勝利！</h2><p id="resultText"></p><div class="modalActions"><button id="againBtn" class="primary">もう一戦</button></div></div></div>
-<script type="module" src="./js/main.js?v=20261008-pwa1"></script>
+<script type="module" src="./js/main.js?v=20261008-enemy1"></script>
 </body>
 </html>
