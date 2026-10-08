@@ -3,9 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#15131b">
+  <meta name="theme-color" content="#201b28">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ドラゴン・デュエル">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="screen-orientation" content="portrait">
   <title>ドラゴン・デュエル SOLO</title>
-  <link rel="stylesheet" href="./css/style.css?v=20261006-6">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/app-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/app-icon.svg">
+  <link rel="stylesheet" href="./css/style.css?v=20261008-pwa1">
 </head>
 <body>
 
@@ -154,6 +163,6 @@
 </div>
 <div id="selectModal" class="modal"><div class="modalBox"><h2 id="selectTitle">カードを選択</h2><p id="selectDesc"></p><div id="selectCards" class="hand" style="max-height:58vh;overflow:auto;flex-wrap:wrap"></div></div></div>
 <div id="resultModal" class="modal"><div class="modalBox"><div id="resultIcon" class="bigIcon">🏆</div><h2 id="resultTitle">勝利！</h2><p id="resultText"></p><div class="modalActions"><button id="againBtn" class="primary">もう一戦</button></div></div></div>
-<script type="module" src="./js/main.js?v=20261006-6"></script>
+<script type="module" src="./js/main.js?v=20261008-pwa1"></script>
 </body>
 </html>
