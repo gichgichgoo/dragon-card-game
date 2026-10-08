@@ -1,4 +1,4 @@
-const CACHE_NAME = "dragon-duel-pwa-v1";
+const CACHE_NAME = "dragon-duel-pwa-v2";
 
 const APP_SHELL = [
   "./",
