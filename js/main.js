@@ -1,5 +1,5 @@
-import { createUI } from "./ui.js?v=20261006-6";
-import { createGame } from "./game.js?v=20261006-6";
+import { createUI } from "./ui.js?v=20261008-enemy1";
+import { createGame } from "./game.js?v=20261008-enemy1";
 
 const isStandalone =
   window.matchMedia?.("(display-mode: standalone)")?.matches ||
