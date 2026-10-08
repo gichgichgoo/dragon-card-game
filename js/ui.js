@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261006-6";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261008-enemy1";
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,11 +20,13 @@ export function createUI() {
     counterIcon: $("counterIcon"), counterTitle: $("counterTitle"), counterDesc: $("counterDesc"), counterRule: $("counterRule"), counterPass: $("passCounter"), counterUse: $("useCounter"),
     counterFlash: $("counterFlash"), counterFlashMain: $("counterFlashMain"), counterFlashSub: $("counterFlashSub"),
     resultIcon: $("resultIcon"), resultTitle: $("resultTitle"), resultText: $("resultText"),
+    opponentReveal: $("opponentRevealModal"), opponentDragonGrid: $("opponentDragonGrid"), beginBattle: $("beginBattleBtn"),
   };
 
   let stateProvider = () => null;
   let handlers = {};
   let counterResolver = null;
+  let opponentRevealResolver = null;
   let setupSelection = [];
   let setupSpells = { summon: {}, basic: {}, tactical: {}, powerful: {} };
   let setupDifficulty = "normal";
@@ -557,6 +559,37 @@ export function createUI() {
     resolve?.(value);
   }
 
+  function showOpponentDragons(ids) {
+    refs.setup.classList.remove("show");
+    refs.opponentDragonGrid.innerHTML = "";
+
+    ids.forEach((id) => {
+      const card = CARDS[id];
+      const tile = document.createElement("div");
+      tile.className = `opponentDragonTile ${card.image ? "hasArt" : ""}`;
+
+      const visual = card.image
+        ? `<div class="opponentDragonArt"><img src="${card.image}" alt="" style="object-position:${card.artPosition ?? "50% 50%"}"></div>`
+        : `<div class="opponentDragonIcon">${card.icon}</div>`;
+
+      tile.innerHTML = `${visual}<div class="opponentDragonShade"></div><div class="opponentDragonName">${card.name}</div>`;
+      refs.opponentDragonGrid.appendChild(tile);
+    });
+
+    refs.opponentReveal.classList.add("show");
+
+    return new Promise((resolve) => {
+      opponentRevealResolver = resolve;
+    });
+  }
+
+  function closeOpponentReveal() {
+    refs.opponentReveal.classList.remove("show");
+    const resolve = opponentRevealResolver;
+    opponentRevealResolver = null;
+    resolve?.();
+  }
+
   function chooseCard(title, desc, items) {
     return new Promise((resolve) => {
       refs.selectTitle.textContent = title;
@@ -718,6 +751,7 @@ export function createUI() {
     refs.logModal.classList.remove("show");
     refs.discard.classList.remove("show");
     refs.rules.classList.remove("show");
+    refs.opponentReveal.classList.remove("show");
     refs.log.innerHTML = "";
   }
 
@@ -736,6 +770,7 @@ export function createUI() {
     $("againBtn").onclick = () => handlers.reset?.();
     refs.counterUse.onclick = () => closeCounter(true);
     refs.counterPass.onclick = () => closeCounter(false);
+    refs.beginBattle.onclick = closeOpponentReveal;
     refs.diffEasy.onclick = () => { setupDifficulty = "easy"; refreshDifficultyButtons(); };
     refs.diffNormal.onclick = () => { setupDifficulty = "normal"; refreshDifficultyButtons(); };
     refs.diffHard.onclick = () => { setupDifficulty = "hard"; refreshDifficultyButtons(); };
@@ -749,6 +784,6 @@ export function createUI() {
   return {
     refs, setStateProvider, bindControls, log, render, renderHearts, showHpDelta, showMaxLife,
     openSetup, clearForGameStart, queueDrawAnimation, queueFieldAnimation, showResult,
-    showTurnStart, showCounterFlash, showOpponentPlay, askCounter, askCounterBack, chooseCard, chooseEntry,
+    showTurnStart, showCounterFlash, showOpponentPlay, askCounter, askCounterBack, showOpponentDragons, chooseCard, chooseEntry,
   };
 }
