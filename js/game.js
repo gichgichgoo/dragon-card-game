@@ -535,11 +535,16 @@ export function createGame(ui, { random = Math.random } = {}) {
     ui.render(state);
   }
 
-  function startGame(build, difficulty = "normal") {
+  async function startGame(build, difficulty = "normal") {
     if (cpuTimer) { clearTimeout(cpuTimer); cpuTimer = null; }
     gameEpoch++;
+    const epoch = gameEpoch;
     const savedBuild = cloneBuild(build);
     const cpuChoice = pickCpuDeck(difficulty, random);
+
+    await ui.showOpponentDragons(cpuChoice.build.dragons);
+    if (gameEpoch !== epoch) return;
+
     const starter = random() < 0.5 ? "player" : "cpu";
     state = {
       epoch: gameEpoch,
@@ -559,7 +564,7 @@ export function createGame(ui, { random = Math.random } = {}) {
 
     for (let i = 0; i < 5; i++) { draw("player", false); draw("cpu", false); }
     ui.clearForGameStart();
-    log(`\u30b2\u30fc\u30e0\u958b\u59cb\u3002CPU\u306f${cpuChoice.difficulty.toUpperCase()}\u306e\u5c02\u7528\u30c7\u30c3\u30ad\u300c${cpuChoice.name}\u300d\u3067\u53c2\u6226\u3002`);
+    log(`ゲーム開始。CPUは${cpuChoice.difficulty.toUpperCase()}の専用デッキで参戦。`);
     log(`${starter === "player" ? "\u3042\u306a\u305f" : "CPU"}\u304c\u5148\u653b\u3002\u5148\u653b1\u30bf\u30fc\u30f3\u76ee\u306f\u30c9\u30ed\u30fc\u306a\u3057\u30fb\u30ab\u30fc\u30c91\u679a\u307e\u3067\u3002`);
     log(`\u3042\u306a\u305f\u306e\u30c9\u30e9\u30b4\u30f3\u306f ${build.dragons.map((id) => CARDS[id].name).join("\uff0f")}\u3002`);
     ui.render(state);
