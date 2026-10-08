@@ -1034,3 +1034,90 @@ body{min-height:100%;overscroll-behavior:none}
     font-size:70px;
   }
 }
+
+
+/* PWA viewport optimization */
+:root{
+  --app-height:100dvh;
+}
+html,body{
+  width:100%;
+  height:var(--app-height);
+  min-height:var(--app-height);
+  max-height:var(--app-height);
+}
+body{
+  overflow:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+.app{
+  height:var(--app-height);
+  max-height:var(--app-height);
+  padding-left:max(8px, env(safe-area-inset-left));
+  padding-right:max(8px, env(safe-area-inset-right));
+}
+.bottomBar{
+  padding-left:max(8px, env(safe-area-inset-left));
+  padding-right:max(8px, env(safe-area-inset-right));
+}
+html.pwa-standalone .app{
+  padding-top:calc(4px + env(safe-area-inset-top));
+  padding-bottom:calc(62px + env(safe-area-inset-bottom));
+  grid-template-rows:36px 30px minmax(0,.92fr) minmax(0,1.28fr) 44px;
+  gap:4px;
+}
+html.pwa-standalone .header{
+  min-height:32px;
+}
+html.pwa-standalone .brand h1{
+  font-size:16px;
+  line-height:32px;
+}
+html.pwa-standalone .smallBtn{
+  min-height:32px;
+  padding:4px 7px;
+}
+html.pwa-standalone .turn{
+  padding:5px 7px;
+  line-height:18px;
+}
+html.pwa-standalone .bottomBar{
+  height:calc(58px + env(safe-area-inset-bottom));
+  padding-top:5px;
+  padding-bottom:calc(4px + env(safe-area-inset-bottom));
+}
+html.pwa-standalone .zone{
+  border-radius:12px;
+}
+html.pwa-standalone .cpuZone,
+html.pwa-standalone .playerZone{
+  min-height:0;
+}
+@media(display-mode:standalone){
+  .app{
+    padding-top:calc(4px + env(safe-area-inset-top));
+    padding-bottom:calc(62px + env(safe-area-inset-bottom));
+  }
+  .bottomBar{
+    padding-bottom:calc(4px + env(safe-area-inset-bottom));
+  }
+}
+@media(max-height:700px){
+  html.pwa-standalone .app{
+    grid-template-rows:32px 28px minmax(0,.88fr) minmax(0,1.2fr) 40px;
+    padding-top:calc(2px + env(safe-area-inset-top));
+    gap:3px;
+  }
+  html.pwa-standalone .brand h1{
+    font-size:14px;
+    line-height:29px;
+  }
+  html.pwa-standalone .smallBtn{
+    min-height:29px;
+    padding:3px 6px;
+    font-size:10px;
+  }
+  html.pwa-standalone .bottomBar{
+    height:calc(54px + env(safe-area-inset-bottom));
+  }
+}
