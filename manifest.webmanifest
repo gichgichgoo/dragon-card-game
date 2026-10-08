@@ -1,0 +1,22 @@
+{
+  "name": "ドラゴン・デュエル SOLO",
+  "short_name": "ドラゴン・デュエル",
+  "description": "1人用ドラゴンカードゲーム",
+  "lang": "ja",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "portrait-primary",
+  "background_color": "#131118",
+  "theme_color": "#201b28",
+  "icons": [
+    {
+      "src": "./assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
