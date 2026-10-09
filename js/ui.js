@@ -1,4 +1,4 @@
-import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261008-enemy1";
+import { CARDS, DRAGON_POOL, SUMMON_POOL, SPELL_POOLS, BUILD_LIMITS, cardTypeLabel, isDragon } from "./cards.js?v=20261009-field1";
 
 const $ = (id) => document.getElementById(id);
 
@@ -117,16 +117,29 @@ export function createUI() {
   function cardElement(id, index = -1, zone = "choice", selected = false, fieldEntry = null) {
     const card = CARDS[id];
     const visual = card.type === "dragon" ? "monster" : "spell";
-    const hasArt = Boolean(card.image);
+    const hasFieldSprite = zone === "field" && Boolean(card.fieldSprite);
+    const hasArt = Boolean(card.image) && !hasFieldSprite;
     const el = document.createElement("div");
-    el.className = `card ${visual} ${hasArt ? "hasArt" : ""} ${zone === "hand" ? "selectable" : ""} ${selected ? "selected" : ""}`;
+    el.className = `card ${visual} ${hasArt ? "hasArt" : ""} ${hasFieldSprite ? "fieldSpriteCard" : ""} ${zone === "hand" ? "selectable" : ""} ${selected ? "selected" : ""}`;
 
-    const art = hasArt
-      ? `<div class="cardArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div><div class="cardArtShade"></div>`
-      : "";
+    if (hasFieldSprite) {
+      el.innerHTML = `
+        <div class="fieldSpriteStage">
+          <div class="fieldSpriteGlow"></div>
+          <img class="fieldSpriteImage" src="${card.fieldSprite}" alt="${card.name}" loading="eager" decoding="async">
+        </div>
+        <div class="fieldSpriteLabel"><span>${card.name}</span><b>⚔${card.attack ?? 0}</b></div>
+        ${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}
+      `;
+    } else {
+      const art = hasArt
+        ? `<div class="cardArt"><img src="${card.image}" alt="" loading="lazy" decoding="async" style="object-position:${card.artPosition ?? "50% 50%"}"></div><div class="cardArtShade"></div>`
+        : "";
 
-    const icon = hasArt ? "" : `<div class="icon">${card.icon}</div>`;
-    el.innerHTML = `${art}<div class="cardInfo">${icon}<div class="cardText"><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div></div></div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
+      const icon = hasArt ? "" : `<div class="icon">${card.icon}</div>`;
+      el.innerHTML = `${art}<div class="cardInfo">${icon}<div class="cardText"><div class="title">${card.name}</div><div class="type">${cardTypeLabel(id)}</div><div class="desc">${card.desc}</div></div></div>${fieldEntry?.summonGuard ? '<div class="guardBadge">🛡️守護</div>' : ""}`;
+    }
+
     if (zone === "hand") el.onclick = () => handlers.selectCard?.(index);
     return el;
   }
