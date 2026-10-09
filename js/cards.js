@@ -18,7 +18,7 @@ export const CARDS = {
   sacrifice: { name: "竜の残響", icon: "💥", type: "spell", tier: "powerful", desc: "自分の場のドラゴン1体を捨て札にし、相手に3ダメージ。", threat: 9 },
 
   whelp: { name: "小さな竜", icon: "🐲", type: "dragon", image: "./assets/dragons/whelp.webp?v=20261005-1", artPosition: "58% 32%", desc: "召喚カードなしで召喚できる。自分のターン開始時に1ダメージ。", threat: 6, freeSummon: true, attack: 1 },
-  dragon: { name: "古竜", icon: "🐉", type: "dragon", image: "./assets/dragons/dragon.webp?v=20261005-1", artPosition: "56% 30%", desc: "自分のターン開始時に4ダメージ。", threat: 10, attack: 4 },
+  dragon: { name: "古竜", icon: "🐉", type: "dragon", image: "./assets/dragons/dragon.webp?v=20261005-1", artPosition: "56% 30%", fieldSprite: "./assets/field/dragon_ancient.webp?v=20261009-field1", desc: "自分のターン開始時に4ダメージ。", threat: 10, attack: 4 },
   mirror: { name: "ミラードラゴン", icon: "🪞", type: "dragon", image: "./assets/dragons/mirror.webp?v=20261005-1", artPosition: "50% 50%", desc: "攻撃1。各相手ターン、最初に受けた相手由来ダメージを同量反射する。", threat: 8, attack: 1 },
   shell: { name: "甲殻竜", icon: "🛡️", type: "dragon", image: "./assets/dragons/shell.webp?v=20261005-2", artPosition: "50% 50%", desc: "攻撃1。各相手ターン、最初に受ける相手由来ダメージを1軽減する。", threat: 7, attack: 1 },
   life: { name: "生命竜", icon: "🌿", type: "dragon", image: "./assets/dragons/life.webp?v=20261005-2", artPosition: "50% 50%", desc: "攻撃0。自分のターン開始時、ライフが3以下なら1回復する。", threat: 7, attack: 0 },
