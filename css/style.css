@@ -1230,3 +1230,115 @@ html.pwa-standalone .playerZone{
     min-height:42px;
   }
 }
+
+
+/* Ancient dragon persistent field sprite */
+.field .card.fieldSpriteCard{
+  position:relative;
+  overflow:visible;
+  padding:0;
+  border-color:transparent;
+  background:transparent;
+  box-shadow:none;
+}
+.fieldSpriteStage{
+  position:absolute;
+  z-index:1;
+  left:-8px;
+  right:-8px;
+  top:-7px;
+  bottom:11px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  pointer-events:none;
+}
+.fieldSpriteGlow{
+  position:absolute;
+  left:50%;
+  bottom:1px;
+  width:54px;
+  height:13px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(214,196,255,.48),rgba(132,88,213,.2) 44%,rgba(80,45,130,0) 73%);
+  filter:blur(2px);
+  opacity:.72;
+}
+.fieldSpriteImage{
+  position:relative;
+  z-index:2;
+  display:block;
+  width:90px;
+  max-width:none;
+  max-height:58px;
+  object-fit:contain;
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.62));
+  transform-origin:50% 88%;
+}
+.fieldSpriteLabel{
+  position:absolute;
+  z-index:3;
+  left:1px;
+  right:1px;
+  bottom:0;
+  height:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:3px;
+  padding:1px 4px;
+  border-radius:6px;
+  background:rgba(16,13,22,.82);
+  color:#fff;
+  font-size:7px;
+  line-height:1;
+  font-weight:1000;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.fieldSpriteLabel span{
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.fieldSpriteLabel b{
+  flex:0 0 auto;
+  color:#f4cf72;
+  font-size:7px;
+}
+.fieldSpriteCard .guardBadge{
+  z-index:5;
+  top:-3px;
+  right:-4px;
+}
+.field .card.fieldSpriteCard.summonArrival .fieldSpriteImage{
+  animation:fieldSpriteArrival .62s cubic-bezier(.18,.78,.22,1) both;
+}
+@keyframes fieldSpriteArrival{
+  0%{transform:translateY(8px) scale(.72);filter:brightness(1.8) drop-shadow(0 0 14px rgba(205,180,255,.72))}
+  45%{transform:translateY(-2px) scale(1.08);filter:brightness(1.25) drop-shadow(0 7px 7px rgba(0,0,0,.55))}
+  100%{transform:translateY(0) scale(1);filter:brightness(1) drop-shadow(0 5px 5px rgba(0,0,0,.62))}
+}
+@media(max-height:740px){
+  .fieldSpriteStage{
+    left:-7px;
+    right:-7px;
+    top:-6px;
+    bottom:10px;
+  }
+  .fieldSpriteImage{
+    width:78px;
+    max-height:48px;
+  }
+  .fieldSpriteGlow{
+    width:46px;
+    height:10px;
+  }
+  .fieldSpriteLabel{
+    height:12px;
+    padding:1px 3px;
+    font-size:6px;
+  }
+  .fieldSpriteLabel b{font-size:6px}
+}
