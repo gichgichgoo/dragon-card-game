@@ -1,4 +1,4 @@
-import { createUI } from "./ui.js?v=20261008-enemy1";
+import { createUI } from "./ui.js?v=20261009-field1";
 import { createGame } from "./game.js?v=20261008-enemy1";
 
 const isStandalone =
