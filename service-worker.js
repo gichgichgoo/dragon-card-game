@@ -1,4 +1,4 @@
-const CACHE_NAME = "dragon-duel-pwa-v2";
+const CACHE_NAME = "dragon-duel-pwa-v3";
 
 const APP_SHELL = [
   "./",
@@ -20,7 +20,8 @@ const APP_SHELL = [
   "./assets/dragons/mirror.webp",
   "./assets/dragons/shell.webp",
   "./assets/dragons/life.webp",
-  "./assets/dragons/thunder.webp"
+  "./assets/dragons/thunder.webp",
+  "./assets/field/dragon_ancient.webp"
 ];
 
 self.addEventListener("install", (event) => {
